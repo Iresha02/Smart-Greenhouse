@@ -514,7 +514,7 @@
                     <li><a href="GreenhouseControl.html">Greenhouse Control</a></li>
                     <li><a href="reports.html" class="active">Reports</a></li>
                     <li><a href="farm_info.html">Farm Info</a></li>
-                    <li><a href="settings.html">Settings</a></li>
+                    <li><a href="#" id="settings-btn">Settings</a></li>
                 </ul>
             </div>
         </div>
@@ -744,6 +744,73 @@
                 <button class="export-btn btn-csv" onclick="exportReport('csv')">
                     📋 Export CSV Data
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel (hidden by default, appears under Settings button) -->
+    <div id="settings-panel" style="display:none; position:absolute; right:40px; top:70px; z-index:2000; width:400px; max-width:90vw;">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">⚙️ Settings</h2>
+            </div>
+            <div style="padding:1rem;">
+                <!-- Device Setup -->
+                <h3>Device Setup</h3>
+                <div>
+                    <label>Add Sensor: <input type="text" id="add-sensor-input" placeholder="Sensor Name"></label>
+                    <button onclick="addSensor()">Add</button>
+                </div>
+                <div>
+                    <label>Remove Sensor:
+                        <select id="remove-sensor-select"></select>
+                    </label>
+                    <button onclick="removeSensor()">Remove</button>
+                </div>
+                <hr>
+                <!-- Camera Integration -->
+                <h3>Camera Integration</h3>
+                <label>
+                    <input type="checkbox" id="camera-toggle" checked>
+                    Enable Camera
+                </label>
+                <div>
+                    <label>Snapshot Schedule:
+                        <select id="snapshot-schedule">
+                            <option value="5">Every 5 min</option>
+                            <option value="15">Every 15 min</option>
+                            <option value="30">Every 30 min</option>
+                            <option value="60">Every 1 hour</option>
+                        </select>
+                    </label>
+                </div>
+                <hr>
+                <!-- SCADA Connection -->
+                <h3>SCADA Connection</h3>
+                <label>SCADA Server IP: <input type="text" id="scada-ip" placeholder="192.168.1.100"></label>
+                <button onclick="connectSCADA()">Connect</button>
+                <span id="scada-status" style="margin-left:1rem; color:green;"></span>
+                <hr>
+                <!-- Language & Alert Preferences -->
+                <h3>Language & Alert Preferences</h3>
+                <label>
+                    Language:
+                    <select id="language-select">
+                        <option value="en">English</option>
+                        <option value="si">සිංහල</option>
+                        <option value="ta">தமிழ்</option>
+                    </select>
+                </label>
+                <div>
+                    <label>
+                        <input type="checkbox" id="alert-email" checked>
+                        Email Alerts
+                    </label>
+                    <label style="margin-left:1rem;">
+                        <input type="checkbox" id="alert-sms">
+                        SMS Alerts
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -1030,6 +1097,72 @@
                 dateRange, zone, crop
             });
         }
+
+        // Settings panel logic
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsPanel = document.getElementById('settings-panel');
+        let sensors = ['Temperature', 'Humidity', 'Soil Moisture'];
+
+        function updateSensorSelect() {
+            const select = document.getElementById('remove-sensor-select');
+            select.innerHTML = '';
+            sensors.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                select.appendChild(opt);
+            });
+        }
+        updateSensorSelect();
+
+        function addSensor() {
+            const input = document.getElementById('add-sensor-input');
+            if (input.value.trim()) {
+                sensors.push(input.value.trim());
+                updateSensorSelect();
+                alert('Sensor added: ' + input.value.trim());
+                input.value = '';
+            }
+        }
+        function removeSensor() {
+            const select = document.getElementById('remove-sensor-select');
+            if (select.value) {
+                sensors = sensors.filter(s => s !== select.value);
+                updateSensorSelect();
+                alert('Sensor removed: ' + select.value);
+            }
+        }
+        function connectSCADA() {
+            const ip = document.getElementById('scada-ip').value;
+            if (ip) {
+                document.getElementById('scada-status').textContent = 'Connected to ' + ip;
+                document.getElementById('scada-status').style.color = 'green';
+            } else {
+                document.getElementById('scada-status').textContent = 'Please enter IP';
+                document.getElementById('scada-status').style.color = 'red';
+            }
+        }
+
+        // Show/hide settings panel under the button
+        settingsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (settingsPanel.style.display === 'none') {
+                settingsPanel.style.display = 'block';
+                // Position panel under the button
+                const rect = settingsBtn.getBoundingClientRect();
+                settingsPanel.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+                settingsPanel.style.right = (window.innerWidth - rect.right - 10) + 'px';
+            } else {
+                settingsPanel.style.display = 'none';
+            }
+        });
+
+        // Hide panel if clicked outside
+        document.addEventListener('click', function(e) {
+            if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+                settingsPanel.style.display = 'none';
+            }
+        });
 
         // Event Listeners
         document.getElementById('dateRange').addEventListener('change', updateCharts);
