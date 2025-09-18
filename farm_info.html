@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Greenhouse Control System - Farm Info</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+            color: #2d5016;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(45, 80, 22, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '🌱';
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            color: #2d5016;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #4a7c59;
+            font-weight: 400;
+        }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 3rem auto;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid #e8f5e8;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            background: white;
+            color: #2d5016;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #4a7c59;
+            box-shadow: 0 0 20px rgba(74, 124, 89, 0.2);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #4a7c59;
+            border: 2px solid #e8f5e8;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
+            color: white;
+            border-color: #2d5016;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(45, 80, 22, 0.2);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #f0f8f0;
+            transform: translateY(-2px);
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(45, 80, 22, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e8f5e8;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d5016;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Crop Profiles Grid */
+        .crop-profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .crop-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+            transition: all 0.3s ease;
+        }
+
+        .crop-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(45, 80, 22, 0.15);
+        }
+
+        .crop-header {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5016 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .crop-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .crop-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .crop-difficulty {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .difficulty-easy {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .difficulty-medium {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .difficulty-hard {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        .crop-body {
+            padding: 1.5rem;
+        }
+
+        .crop-specs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .spec-item {
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .spec-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d5016;
+            margin-bottom: 0.3rem;
+        }
+
+        .spec-label {
+            font-size: 0.9rem;
+            color: #4a7c59;
+            font-weight: 500;
+        }
+
+        .crop-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e8f5e8;
+        }
+
+        .crop-details.show {
+            display: block;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-title {
+            font-weight: bold;
+            color: #2d5016;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-content {
+            color: #4a7c59;
+            line-height: 1.6;
+        }
+
+        .disease-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .disease-list li {
+            background: #fff5f5;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            border-left: 3px solid #dc3545;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-details {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5016 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .toggle-details:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(45, 80, 22, 0.2);
+        }
+
+        /* Best Practices Section */
+        .practices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .practice-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+            transition: all 0.3s ease;
+        }
+
+        .practice-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(45, 80, 22, 0.15);
+        }
+
+        .practice-icon {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .practice-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d5016;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .practice-tips {
+            list-style: none;
+        }
+
+        .practice-tips li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e8f5e8;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .practice-tips li:last-child {
+            border-bottom: none;
+        }
+
+        .tip-icon {
+            color: #28a745;
+            margin-top: 0.2rem;
+        }
+
+        /* Seasonal Guide */
+        .seasonal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .season-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .season-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(45, 80, 22, 0.15);
+        }
+
+        .season-spring {
+            border-top: 4px solid #28a745;
+        }
+
+        .season-summer {
+            border-top: 4px solid #ffc107;
+        }
+
+        .season-autumn {
+            border-top: 4px solid #fd7e14;
+        }
+
+        .season-winter {
+            border-top: 4px solid #007bff;
+        }
+
+        .season-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .season-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d5016;
+            margin-bottom: 1rem;
+        }
+
+        .season-tasks {
+            text-align: left;
+            list-style: none;
+        }
+
+        .season-tasks li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e8f5e8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .season-tasks li:last-child {
+            border-bottom: none;
+        }
+
+        /* Troubleshooting */
+        .troubleshoot-accordion {
+            margin-top: 2rem;
+        }
+
+        .accordion-item {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            cursor: pointer;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+        }
+
+        .accordion-title {
+            font-weight: bold;
+            color: #2d5016;
+            flex-grow: 1;
+        }
+
+        .accordion-icon {
+            color: #4a7c59;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 500px;
+        }
+
+        .accordion-body {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .solution-steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .solution-steps li {
+            counter-increment: step-counter;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e8f5e8;
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .solution-steps li:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 1rem;
+            background: #4a7c59;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .solution-steps li:last-child {
+            border-bottom: none;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .crop-profiles-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+            
+            .practices-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .category-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .tab-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .nav-links a {
+                padding: 0.3rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .crop-specs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .seasonal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .practices-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .crop-profiles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation keyframes */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: slideIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">Smart Greenhouse</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="GreenhouseControl.html">Greenhouse Control</a></li>
+                    <li><a href="reports.html">Reports</a></li>
+                    <li><a href="farm_info.html" class="active">Farm Info</a></li>
+                    <li><a href="settings.html">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">📚 Farm Info</h1>
+                <p class="page-subtitle">Your comprehensive guide to greenhouse farming success</p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Search crop profiles, diseases, or farming tips..." id="searchInput">
+                <button class="search-btn" onclick="performSearch()">🔍</button>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="category-tabs">
+                <button class="tab-btn active" data-tab="crop-profiles">🌾 Crop Profiles</button>
+                <button class="tab-btn" data-tab="best-practices">✨ Best Practices</button>
+                <button class="tab-btn" data-tab="seasonal-guide">📅 Seasonal Guide</button>
+                <button class="tab-btn" data-tab="troubleshooting">🔧 Troubleshooting</button>
+            </div>
+
+            <!-- Crop Profiles Tab -->
+            <div class="tab-content active" id="crop-profiles">
+                <div class="crop-profiles-grid">
+                    <!-- Strawberry Profile -->
+                    <div class="crop-card">
+                        <div class="crop-header">
+                            <div class="crop-icon">🍓</div>
+                            <div class="crop-name">Strawberry</div>
+                            <span class="crop-difficulty difficulty-medium">Medium Difficulty</span>
+                        </div>
+                        <div class="crop-body">
+                            <div class="crop-specs">
+                                <div class="spec-item">
+                                    <div class="spec-value">18-24°C</div>
+                                    <div class="spec-label">Temperature</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">60-70%</div>
+                                    <div class="spec-label">Humidity</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">6.0-6.5</div>
+                                    <div class="spec-label">pH Level</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">60-90 days</div>
+                                    <div class="spec-label">Harvest Time</div>
+                                </div>
+                            </div>
+                            <div class="crop-details" id="strawberry-details">
+                                <div class="detail-section">
+                                    <div class="detail-title">🌡️ Optimal Environmental Ranges</div>
+                                    <div class="detail-content">
+                                        <strong>Day Temperature:</strong> 18-22°C<br>
+                                        <strong>Night Temperature:</strong> 10-13°C<br>
+                                        <strong>Light Intensity:</strong> 200-400 μmol/m²/s<br>
+                                        <strong>Photoperiod:</strong> 12-16 hours<br>
+                                        <strong>CO₂ Levels:</strong> 800-1200 ppm
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">💧 Irrigation Schedule</div>
+                                    <div class="detail-content">
+                                        <strong>Young Plants:</strong> Light watering 2-3 times daily<br>
+                                        <strong>Flowering Stage:</strong> Deep watering once daily, morning preferred<br>
+                                        <strong>Fruiting Stage:</strong> Consistent moisture, avoid overwatering<br>
+                                        <strong>Soil Moisture:</strong> Maintain 70-80% field capacity
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🦠 Common Diseases</div>
+                                    <div class="detail-content">
+                                        <ul class="disease-list">
+                                            <li>🍄 Gray Mold (Botrytis) - High humidity risk</li>
+                                            <li>🦠 Powdery Mildew - Poor air circulation</li>
+                                            <li>🟤 Leaf Spot - Overhead watering issues</li>
+                                            <li>🐛 Spider Mites - Low humidity conditions</li>
+                                            <li>🪱 Root Rot - Overwatering problems</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🌱 Growth Tips</div>
+                                    <div class="detail-content">
+                                        • Use raised beds or hanging systems for better drainage<br>
+                                        • Remove runners regularly to focus energy on fruit production<br>
+                                        • Maintain good air circulation to prevent fungal diseases<br>
+                                        • Hand pollination may increase yield in closed systems
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="toggle-details" onclick="toggleDetails('strawberry-details', this)">
+                                Show Detailed Information
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tomato Profile -->
+                    <div class="crop-card">
+                        <div class="crop-header">
+                            <div class="crop-icon">🍅</div>
+                            <div class="crop-name">Tomato</div>
+                            <span class="crop-difficulty difficulty-easy">Easy</span>
+                        </div>
+                        <div class="crop-body">
+                            <div class="crop-specs">
+                                <div class="spec-item">
+                                    <div class="spec-value">20-25°C</div>
+                                    <div class="spec-label">Temperature</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">65-75%</div>
+                                    <div class="spec-label">Humidity</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">6.0-6.8</div>
+                                    <div class="spec-label">pH Level</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">75-85 days</div>
+                                    <div class="spec-label">Harvest Time</div>
+                                </div>
+                            </div>
+                            <div class="crop-details" id="tomato-details">
+                                <div class="detail-section">
+                                    <div class="detail-title">🌡️ Optimal Environmental Ranges</div>
+                                    <div class="detail-content">
+                                        <strong>Day Temperature:</strong> 21-24°C<br>
+                                        <strong>Night Temperature:</strong> 16-18°C<br>
+                                        <strong>Light Intensity:</strong> 250-400 μmol/m²/s<br>
+                                        <strong>Photoperiod:</strong> 14-18 hours<br>
+                                        <strong>CO₂ Levels:</strong> 1000-1500 ppm
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">💧 Irrigation Schedule</div>
+                                    <div class="detail-content">
+                                        <strong>Seedling Stage:</strong> Light, frequent watering<br>
+                                        <strong>Vegetative Growth:</strong> Deep watering every 2-3 days<br>
+                                        <strong>Flowering/Fruiting:</strong> Consistent daily watering<br>
+                                        <strong>Soil Moisture:</strong> Maintain 80-85% field capacity
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🦠 Common Diseases</div>
+                                    <div class="detail-content">
+                                        <ul class="disease-list">
+                                            <li>🍄 Late Blight - Cool, wet conditions</li>
+                                            <li>🟫 Early Blight - Mature plant stress</li>
+                                            <li>🦠 Bacterial Wilt - Soil-borne pathogen</li>
+                                            <li>🐛 Whiteflies - Vector for viral diseases</li>
+                                            <li>🪱 Fusarium Wilt - Root system infection</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🌱 Growth Tips</div>
+                                    <div class="detail-content">
+                                        • Provide strong support structures for indeterminate varieties<br>
+                                        • Prune suckers regularly for better fruit development<br>
+                                        • Maintain consistent watering to prevent blossom end rot<br>
+                                        • Use trellising systems for better light exposure
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="toggle-details" onclick="toggleDetails('tomato-details', this)">
+                                Show Detailed Information
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cucumber Profile -->
+                    <div class="crop-card">
+                        <div class="crop-header">
+                            <div class="crop-icon">🥒</div>
+                            <div class="crop-name">Cucumber</div>
+                            <span class="crop-difficulty difficulty-easy">Easy</span>
+                        </div>
+                        <div class="crop-body">
+                            <div class="crop-specs">
+                                <div class="spec-item">
+                                    <div class="spec-value">22-28°C</div>
+                                    <div class="spec-label">Temperature</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">70-80%</div>
+                                    <div class="spec-label">Humidity</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">6.0-7.0</div>
+                                    <div class="spec-label">pH Level</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">50-65 days</div>
+                                    <div class="spec-label">Harvest Time</div>
+                                </div>
+                            </div>
+                            <div class="crop-details" id="cucumber-details">
+                                <div class="detail-section">
+                                    <div class="detail-title">🌡️ Optimal Environmental Ranges</div>
+                                    <div class="detail-content">
+                                        <strong>Day Temperature:</strong> 24-26°C<br>
+                                        <strong>Night Temperature:</strong> 18-20°C<br>
+                                        <strong>Light Intensity:</strong> 300-500 μmol/m²/s<br>
+                                        <strong>Photoperiod:</strong> 12-14 hours<br>
+                                        <strong>CO₂ Levels:</strong> 900-1200 ppm
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">💧 Irrigation Schedule</div>
+                                    <div class="detail-content">
+                                        <strong>Seedling Stage:</strong> Light watering 2-3 times daily<br>
+                                        <strong>Vine Development:</strong> Deep watering daily<br>
+                                        <strong>Fruiting Stage:</strong> High water demand, 2-3 times daily<br>
+                                        <strong>Soil Moisture:</strong> Maintain 85-90% field capacity
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🦠 Common Diseases</div>
+                                    <div class="detail-content">
+                                        <ul class="disease-list">
+                                            <li>🦠 Powdery Mildew - High humidity conditions</li>
+                                            <li>🟫 Downy Mildew - Cool, moist environments</li>
+                                            <li>🐛 Cucumber Beetles - Vector for bacterial wilt</li>
+                                            <li>🦠 Bacterial Wilt - Cucumber beetle transmission</li>
+                                            <li>🍄 Anthracnose - Fungal fruit rot</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🌱 Growth Tips</div>
+                                    <div class="detail-content">
+                                        • Train vines vertically to maximize space efficiency<br>
+                                        • Harvest frequently to encourage continued production<br>
+                                        • Maintain high humidity but ensure good air circulation<br>
+                                        • Use plastic mulch to retain soil moisture
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="toggle-details" onclick="toggleDetails('cucumber-details', this)">
+                                Show Detailed Information
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lettuce Profile -->
+                    <div class="crop-card">
+                        <div class="crop-header">
+                            <div class="crop-icon">🥬</div>
+                            <div class="crop-name">Lettuce</div>
+                            <span class="crop-difficulty difficulty-easy">Easy</span>
+                        </div>
+                        <div class="crop-body">
+                            <div class="crop-specs">
+                                <div class="spec-item">
+                                    <div class="spec-value">15-20°C</div>
+                                    <div class="spec-label">Temperature</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">50-70%</div>
+                                    <div class="spec-label">Humidity</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">6.0-7.0</div>
+                                    <div class="spec-label">pH Level</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">30-45 days</div>
+                                    <div class="spec-label">Harvest Time</div>
+                                </div>
+                            </div>
+                            <div class="crop-details" id="lettuce-details">
+                                <div class="detail-section">
+                                    <div class="detail-title">🌡️ Optimal Environmental Ranges</div>
+                                    <div class="detail-content">
+                                        <strong>Day Temperature:</strong> 16-18°C<br>
+                                        <strong>Night Temperature:</strong> 10-12°C<br>
+                                        <strong>Light Intensity:</strong> 150-250 μmol/m²/s<br>
+                                        <strong>Photoperiod:</strong> 10-12 hours<br>
+                                        <strong>CO₂ Levels:</strong> 800-1000 ppm
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">💧 Irrigation Schedule</div>
+                                    <div class="detail-content">
+                                        <strong>Seedling Stage:</strong> Mist irrigation 3-4 times daily<br>
+                                        <strong>Growth Stage:</strong> Light watering 2 times daily<br>
+                                        <strong>Harvest Stage:</strong> Maintain consistent moisture<br>
+                                        <strong>Soil Moisture:</strong> Maintain 75-80% field capacity
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🦠 Common Diseases</div>
+                                    <div class="detail-content">
+                                        <ul class="disease-list">
+                                            <li>🦠 Bacterial Leaf Spot - Overhead watering</li>
+                                            <li>🍄 Bottom Rot - Soil contact and moisture</li>
+                                            <li>🐛 Aphids - Cool weather pest</li>
+                                            <li>🦠 Downy Mildew - High humidity conditions</li>
+                                            <li>🐛 Thrips - Leaf damage and viral transmission</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🌱 Growth Tips</div>
+                                    <div class="detail-content">
+                                        • Keep temperatures cool to prevent bolting<br>
+                                        • Use NFT or DWC hydroponic systems for best results<br>
+                                        • Harvest in early morning for best quality<br>
+                                        • Provide shade during hot periods
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="toggle-details" onclick="toggleDetails('lettuce-details', this)">
+                                Show Detailed Information
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Pepper Profile -->
+                    <div class="crop-card">
+                        <div class="crop-header">
+                            <div class="crop-icon">🌶️</div>
+                            <div class="crop-name">Pepper</div>
+                            <span class="crop-difficulty difficulty-medium">Medium Difficulty</span>
+                        </div>
+                        <div class="crop-body">
+                            <div class="crop-specs">
+                                <div class="spec-item">
+                                    <div class="spec-value">22-28°C</div>
+                                    <div class="spec-label">Temperature</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">60-70%</div>
+                                    <div class="spec-label">Humidity</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">6.0-6.8</div>
+                                    <div class="spec-label">pH Level</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">70-90 days</div>
+                                    <div class="spec-label">Harvest Time</div>
+                                </div>
+                            </div>
+                            <div class="crop-details" id="pepper-details">
+                                <div class="detail-section">
+                                    <div class="detail-title">🌡️ Optimal Environmental Ranges</div>
+                                    <div class="detail-content">
+                                        <strong>Day Temperature:</strong> 24-26°C<br>
+                                        <strong>Night Temperature:</strong> 18-20°C<br>
+                                        <strong>Light Intensity:</strong> 300-400 μmol/m²/s<br>
+                                        <strong>Photoperiod:</strong> 14-16 hours<br>
+                                        <strong>CO₂ Levels:</strong> 1000-1300 ppm
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">💧 Irrigation Schedule</div>
+                                    <div class="detail-content">
+                                        <strong>Seedling Stage:</strong> Light, frequent watering<br>
+                                        <strong>Vegetative Growth:</strong> Deep watering every 2 days<br>
+                                        <strong>Flowering/Fruiting:</strong> Consistent daily watering<br>
+                                        <strong>Soil Moisture:</strong> Maintain 75-80% field capacity
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🦠 Common Diseases</div>
+                                    <div class="detail-content">
+                                        <ul class="disease-list">
+                                            <li>🦠 Bacterial Spot - Water splash transmission</li>
+                                            <li>🍄 Anthracnose - Fruit rot disease</li>
+                                            <li>🐛 Aphids - Viral disease vectors</li>
+                                            <li>🦠 Phytophthora Blight - Root and crown rot</li>
+                                            <li>🐛 Spider Mites - Hot, dry conditions</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🌱 Growth Tips</div>
+                                    <div class="detail-content">
+                                        • Provide support for heavy-fruited varieties<br>
+                                        • Maintain consistent soil moisture to prevent blossom end rot<br>
+                                        • Hand pollination may be needed in closed systems<br>
+                                        • Harvest regularly to encourage continued production
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="toggle-details" onclick="toggleDetails('pepper-details', this)">
+                                Show Detailed Information
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Herbs Profile -->
+                    <div class="crop-card">
+                        <div class="crop-header">
+                            <div class="crop-icon">🌿</div>
+                            <div class="crop-name">Herbs (Basil, Parsley, Cilantro)</div>
+                            <span class="crop-difficulty difficulty-easy">Easy</span>
+                        </div>
+                        <div class="crop-body">
+                            <div class="crop-specs">
+                                <div class="spec-item">
+                                    <div class="spec-value">18-24°C</div>
+                                    <div class="spec-label">Temperature</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">55-65%</div>
+                                    <div class="spec-label">Humidity</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">6.0-7.0</div>
+                                    <div class="spec-label">pH Level</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-value">30-60 days</div>
+                                    <div class="spec-label">Harvest Time</div>
+                                </div>
+                            </div>
+                            <div class="crop-details" id="herbs-details">
+                                <div class="detail-section">
+                                    <div class="detail-title">🌡️ Optimal Environmental Ranges</div>
+                                    <div class="detail-content">
+                                        <strong>Day Temperature:</strong> 20-22°C<br>
+                                        <strong>Night Temperature:</strong> 16-18°C<br>
+                                        <strong>Light Intensity:</strong> 200-350 μmol/m²/s<br>
+                                        <strong>Photoperiod:</strong> 12-14 hours<br>
+                                        <strong>CO₂ Levels:</strong> 800-1000 ppm
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">💧 Irrigation Schedule</div>
+                                    <div class="detail-content">
+                                        <strong>Seedling Stage:</strong> Light misting 2-3 times daily<br>
+                                        <strong>Growth Stage:</strong> Moderate watering daily<br>
+                                        <strong>Harvest Stage:</strong> Consistent light watering<br>
+                                        <strong>Soil Moisture:</strong> Maintain 70-75% field capacity
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🦠 Common Diseases</div>
+                                    <div class="detail-content">
+                                        <ul class="disease-list">
+                                            <li>🍄 Fusarium Wilt - Soil-borne fungus</li>
+                                            <li>🦠 Bacterial Leaf Spot - Water on leaves</li>
+                                            <li>🐛 Aphids - Soft tissue feeders</li>
+                                            <li>🦠 Powdery Mildew - Poor air circulation</li>
+                                            <li>🐛 Whiteflies - Sticky honeydew producers</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="detail-section">
+                                    <div class="detail-title">🌱 Growth Tips</div>
+                                    <div class="detail-content">
+                                        • Pinch flowers to encourage leaf growth<br>
+                                        • Harvest frequently to promote bushier growth<br>
+                                        • Provide good air circulation to prevent disease<br>
+                                        • Use succession planting for continuous harvest
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="toggle-details" onclick="toggleDetails('herbs-details', this)">
+                                Show Detailed Information
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Practices Tab -->
+            <div class="tab-content" id="best-practices">
+                <div class="practices-grid">
+                    <div class="practice-card">
+                        <div class="practice-icon">🌡️</div>
+                        <div class="practice-title">Climate Control</div>
+                        <ul class="practice-tips">
+                            <li><span class="tip-icon">✅</span> Maintain consistent day/night temperature cycles</li>
+                            <li><span class="tip-icon">✅</span> Monitor humidity levels to prevent disease</li>
+                            <li><span class="tip-icon">✅</span> Use ventilation systems for air circulation</li>
+                            <li><span class="tip-icon">✅</span> Install backup heating/cooling systems</li>
+                            <li><span class="tip-icon">✅</span> Log environmental data regularly</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="practice-card">
+                        <div class="practice-icon">💧</div>
+                        <div class="practice-title">Water Management</div>
+                        <ul class="practice-tips">
+                            <li><span class="tip-icon">✅</span> Use drip irrigation for efficient water use</li>
+                            <li><span class="tip-icon">✅</span> Monitor soil moisture with sensors</li>
+                            <li><span class="tip-icon">✅</span> Implement water recycling systems</li>
+                            <li><span class="tip-icon">✅</span> Test water quality monthly</li>
+                            <li><span class="tip-icon">✅</span> Adjust irrigation based on growth stage</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="practice-card">
+                        <div class="practice-icon">🌱</div>
+                        <div class="practice-title">Plant Health</div>
+                        <ul class="practice-tips">
+                            <li><span class="tip-icon">✅</span> Inspect plants daily for early disease detection</li>
+                            <li><span class="tip-icon">✅</span> Maintain proper plant spacing</li>
+                            <li><span class="tip-icon">✅</span> Use integrated pest management (IPM)</li>
+                            <li><span class="tip-icon">✅</span> Quarantine new plants before introduction</li>
+                            <li><span class="tip-icon">✅</span> Keep detailed health records</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="practice-card">
+                        <div class="practice-icon">💡</div>
+                        <div class="practice-title">Lighting Optimization</div>
+                        <ul class="practice-tips">
+                            <li><span class="tip-icon">✅</span> Use LED lights for energy efficiency</li>
+                            <li><span class="tip-icon">✅</span> Adjust photoperiod by crop requirements</li>
+                            <li><span class="tip-icon">✅</span> Monitor light intensity with sensors</li>
+                            <li><span class="tip-icon">✅</span> Clean light fixtures regularly</li>
+                            <li><span class="tip-icon">✅</span> Use reflective materials to maximize coverage</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="practice-card">
+                        <div class="practice-icon">🦠</div>
+                        <div class="practice-title">Disease Prevention</div>
+                        <ul class="practice-tips">
+                            <li><span class="tip-icon">✅</span> Sanitize tools and equipment regularly</li>
+                            <li><span class="tip-icon">✅</span> Remove infected plant material immediately</li>
+                            <li><span class="tip-icon">✅</span> Maintain proper air circulation</li>
+                            <li><span class="tip-icon">✅</span> Use beneficial microorganisms</li>
+                            <li><span class="tip-icon">✅</span> Implement crop rotation strategies</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="practice-card">
+                        <div class="practice-icon">📊</div>
+                        <div class="practice-title">Data Management</div>
+                        <ul class="practice-tips">
+                            <li><span class="tip-icon">✅</span> Record all environmental parameters</li>
+                            <li><span class="tip-icon">✅</span> Track plant growth and yield data</li>
+                            <li><span class="tip-icon">✅</span> Analyze trends for optimization</li>
+                            <li><span class="tip-icon">✅</span> Set up automated alerts for anomalies</li>
+                            <li><span class="tip-icon">✅</span> Create backup systems for data storage</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seasonal Guide Tab -->
+            <div class="tab-content" id="seasonal-guide">
+                <div class="seasonal-grid">
+                    <div class="season-card season-spring">
+                        <div class="season-icon">🌧️</div>
+                        <div class="season-title">Yala Season (May - August)</div>
+                        <ul class="season-tasks">
+                            <li>🌱 Plant rice, maize, and vegetables suited for Yala</li>
+                            <li>💧 Monitor irrigation as rainfall decreases</li>
+                            <li>🦠 Apply preventive treatments for fungal diseases</li>
+                            <li>🔧 Maintain and calibrate greenhouse equipment</li>
+                            <li>🌡️ Adjust climate control for warmer, drier conditions</li>
+                            <li>📊 Plan crop rotation and fertilizer schedules</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="season-card season-summer">
+                        <div class="season-icon">🌦️</div>
+                        <div class="season-title">Inter-monsoon (September - October)</div>
+                        <ul class="season-tasks">
+                            <li>🌱 Sow short-duration crops and leafy greens</li>
+                            <li>💧 Prepare for unpredictable rainfall</li>
+                            <li>🪟 Increase ventilation to manage humidity</li>
+                            <li>🐛 Monitor for pest outbreaks after rains</li>
+                            <li>🌿 Harvest Yala crops and begin Maha preparations</li>
+                            <li>⚡ Check backup systems for power and water</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="season-card season-autumn">
+                        <div class="season-icon">🌧️</div>
+                        <div class="season-title">Maha Season (October - March)</div>
+                        <ul class="season-tasks">
+                            <li>🌾 Plant rice, vegetables, and pulses for Maha</li>
+                            <li>💧 Manage excess water and drainage</li>
+                            <li>🦠 Apply disease prevention for wet conditions</li>
+                            <li>🔧 Inspect and repair greenhouse structures</li>
+                            <li>📦 Store harvested Yala crops</li>
+                            <li>📊 Record and analyze seasonal data</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="season-card season-winter">
+                        <div class="season-icon">☀️</div>
+                        <div class="season-title">Dry Season (March - May)</div>
+                        <ul class="season-tasks">
+                            <li>🌡️ Monitor for heat stress and drought</li>
+                            <li>💧 Increase irrigation frequency</li>
+                            <li>🔧 Deep clean and sterilize greenhouse</li>
+                            <li>📚 Plan next Yala crop schedule</li>
+                            <li>🌱 Grow drought-tolerant crops</li>
+                            <li>📊 Review and analyze annual performance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Troubleshooting Tab -->
+            <div class="tab-content" id="troubleshooting">
+                <div class="troubleshoot-accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="accordion-title">🌡️ Temperature Control Issues</div>
+                            <div class="accordion-icon">▼</div>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Common Problems:</h4>
+                                <ul class="solution-steps">
+                                    <li>Check heating/cooling system functionality and settings</li>
+                                    <li>Inspect ventilation systems for blockages or malfunctions</li>
+                                    <li>Verify temperature sensor accuracy and placement</li>
+                                    <li>Examine insulation integrity and seal gaps</li>
+                                    <li>Review automated control system programming</li>
+                                    <li>Consider external factors (weather, equipment heat)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="accordion-title">💧 Irrigation Problems</div>
+                            <div class="accordion-icon">▼</div>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Troubleshooting Steps:</h4>
+                                <ul class="solution-steps">
+                                    <li>Check water source and pump functionality</li>
+                                    <li>Inspect drip lines and emitters for clogs</li>
+                                    <li>Test soil moisture sensors for accuracy</li>
+                                    <li>Verify timer and controller settings</li>
+                                    <li>Examine water pressure and flow rates</li>
+                                    <li>Clean filters and replace worn components</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="accordion-title">🐛 Pest Management</div>
+                            <div class="accordion-icon">▼</div>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Integrated Approach:</h4>
+                                <ul class="solution-steps">
+                                    <li>Identify pest species through careful observation</li>
+                                    <li>Assess pest population levels and damage</li>
+                                    <li>Remove affected plant material immediately</li>
+                                    <li>Introduce beneficial insects if appropriate</li>
+                                    <li>Apply targeted treatments (organic preferred)</li>
+                                    <li>Implement preventive measures for future</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="accordion-title">🦠 Disease Control</div>
+                            <div class="accordion-icon">▼</div>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Disease Management Protocol:</h4>
+                                <ul class="solution-steps">
+                                    <li>Identify disease through symptoms and lab testing</li>
+                                    <li>Isolate affected plants to prevent spread</li>
+                                    <li>Remove and dispose of infected material properly</li>
+                                    <li>Improve environmental conditions (humidity, airflow)</li>
+                                    <li>Apply appropriate fungicides or bactericides</li>
+                                    <li>Monitor recovery and implement prevention</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="accordion-title">💡 Lighting Issues</div>
+                            <div class="accordion-icon">▼</div>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Lighting Troubleshooting:</h4>
+                                <ul class="solution-steps">
+                                    <li>Check electrical connections and circuit breakers</li>
+                                    <li>Test individual LED panels or bulbs</li>
+                                    <li>Measure light intensity at plant level</li>
+                                    <li>Clean light fixtures and reflective surfaces</li>
+                                    <li>Verify timer and dimming controls</li>
+                                    <li>Replace failed components promptly</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="accordion-title">📊 Sensor Calibration</div>
+                            <div class="accordion-icon">▼</div>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <h4>Sensor Maintenance:</h4>
+                                <ul class="solution-steps">
+                                    <li>Compare sensor readings with calibrated instruments</li>
+                                    <li>Clean sensor probes and housing regularly</li>
+                                    <li>Check cable connections and power supply</li>
+                                    <li>Recalibrate using manufacturer's procedures</li>
+                                    <li>Replace sensors showing consistent drift</li>
+                                    <li>Document calibration dates and procedures</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        // Add click event listeners to tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                switchTab(tabName);
+            });
+        });
+
+        // Toggle crop details
+        function toggleDetails(detailsId, button) {
+            const details = document.getElementById(detailsId);
+            const isShowing = details.classList.contains('show');
+            
+            if (isShowing) {
+                details.classList.remove('show');
+                button.textContent = 'Show Detailed Information';
+                button.style.background = 'linear-gradient(135deg, #4a7c59 0%, #2d5016 100%)';
+            } else {
+                details.classList.add('show');
+                button.textContent = 'Hide Detailed Information';
+                button.style.background = 'linear-gradient(135deg, #2d5016 0%, #4a7c59 100%)';
+            }
+        }
+
+        // Accordion functionality
+        function toggleAccordion(header) {
+            const accordionItem = header.parentElement;
+            const isActive = accordionItem.classList.contains('active');
+            
+            // Close all accordion items
+            document.querySelectorAll('.accordion-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // If this item wasn't active, open it
+            if (!isActive) {
+                accordionItem.classList.add('active');
+            }
+        }
+
+        // Search functionality
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (!searchTerm) {
+                alert('Please enter a search term');
+                return;
+            }
+
+            // Show search results
+            let results = [];
+            const searchableElements = document.querySelectorAll('.crop-card, .practice-card, .accordion-item');
+            
+            searchableElements.forEach(element => {
+                const text = element.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    results.push(element);
+                }
+            });
+
+            if (results.length > 0) {
+                // Highlight first result and scroll to it
+                results[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                results[0].style.border = '3px solid #ffc107';
+                setTimeout(() => {
+                    results[0].style.border = '1px solid #e8f5e8';
+                }, 3000);
+                
+                alert(`Found ${results.length} result(s) for "${searchTerm}". First result is highlighted.`);
+            } else {
+                alert(`No results found for "${searchTerm}". Try searching for: crops, diseases, temperature, irrigation, etc.`);
+            }
+        }
+
+        // Add enter key support for search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Only prevent default for non-existing pages
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                }
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                console.log('Navigating to:', this.textContent);
+            });
+        });
+
+        // Add hover effects to crop cards
+        document.querySelectorAll('.crop-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Add interactive effects to practice cards
+        document.querySelectorAll('.practice-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'translateY(-5px)';
+                }, 150);
+                
+                // Show detailed tips
+                const title = this.querySelector('.practice-title').textContent;
+                console.log(`Clicked on: ${title}`);
+            });
+        });
+
+        // Seasonal card interactions
+        document.querySelectorAll('.season-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const season = this.querySelector('.season-title').textContent;
+                alert(`${season} Details:\n\nClick on any task item for more detailed information about seasonal greenhouse management practices.`);
+            });
+        });
+
+        // Disease list item interactions
+        document.querySelectorAll('.disease-list li').forEach(item => {
+            item.addEventListener('click', function() {
+                const disease = this.textContent;
+                alert(`Disease Information: ${disease}\n\nFor detailed treatment protocols and prevention strategies, consult the troubleshooting section or contact your agricultural extension office.`);
+            });
+        });
+
+        // Add smooth scrolling animation when switching tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Add animation to new content
+                setTimeout(() => {
+                    const activeContent = document.querySelector('.tab-content.active');
+                    activeContent.classList.add('animate-in');
+                    setTimeout(() => {
+                        activeContent.classList.remove('animate-in');
+                    }, 500);
+                }, 100);
+            });
+        });
+
+        // Auto-expand details for mobile users
+        function checkMobileAndAutoExpand() {
+            if (window.innerWidth <= 768) {
+                document.querySelectorAll('.toggle-details').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        setTimeout(() => {
+                            this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                    });
+                });
+            }
+        }
+
+        // Initialize mobile optimizations
+        checkMobileAndAutoExpand();
+        window.addEventListener('resize', checkMobileAndAutoExpand);
+
+        // Simulate dynamic content updates
+        function updateGrowthTips() {
+            const tips = [
+                "💡 Pro Tip: Monitor CO₂ levels during peak growth periods",
+                "🌡️ Remember: Temperature consistency is key for optimal yields",
+                "💧 Advice: Check soil moisture sensors weekly for accuracy",
+                "🌱 Tip: Rotate crops seasonally to prevent soil depletion",
+                "📊 Note: Keep detailed records for better decision making"
+            ];
+            
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            
+            // Could display this as a notification or update tip
+            console.log('Growth Tip:', randomTip);
+        }
+
+        // Update tips every 30 seconds
+        setInterval(updateGrowthTips, 30000);
+
+        // Initialize tooltips for technical terms
+        function addTooltips() {
+            const technicalTerms = {
+                'μmol/m²/s': 'Micromoles per square meter per second - unit of light measurement',
+                'ppm': 'Parts per million - measurement of concentration',
+                'field capacity': 'Maximum amount of water soil can hold after drainage',
+                'photoperiod': 'Duration of light exposure per day'
+            };
+
+            Object.keys(technicalTerms).forEach(term => {
+                const elements = document.querySelectorAll('*');
+                elements.forEach(el => {
+                    if (el.textContent && el.textContent.includes(term)) {
+                        el.title = technicalTerms[term];
+                    }
+                });
+            });
+        }
+
+        // Initialize tooltips
+        addTooltips();
+
+        // Add keyboard navigation support
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        switchTab('crop-profiles');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        switchTab('best-practices');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        switchTab('seasonal-guide');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        switchTab('troubleshooting');
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                        break;
+                }
+            }
+        });
+
+        console.log('Smart Greenhouse Farm Info system initialized successfully!');
+        console.log('Keyboard shortcuts: Ctrl+1-4 for tabs, Ctrl+F for search');
+    </script>
+</body>
+</html>

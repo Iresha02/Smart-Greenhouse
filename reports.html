@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Greenhouse Control System - Reports</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+            color: #2d5016;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(45, 80, 22, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '🌱';
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            color: #2d5016;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #4a7c59;
+            font-weight: 400;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(45, 80, 22, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e8f5e8;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d5016;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #2d5016;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.8rem;
+            border: 2px solid #e8f5e8;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            color: #2d5016;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #4a7c59;
+        }
+
+        /* Charts Container */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d5016;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Plant Growth Tracking */
+        .growth-timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .growth-timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: linear-gradient(90deg, #4a7c59 0%, #90EE90 100%);
+            border-radius: 2px;
+            z-index: 1;
+        }
+
+        .growth-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stage-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            border: 3px solid;
+            background: white;
+        }
+
+        .stage-complete {
+            background: #d4edda;
+            border-color: #4a7c59;
+            color: #2d5016;
+        }
+
+        .stage-current {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+            animation: pulse 2s infinite;
+        }
+
+        .stage-pending {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+            color: #6c757d;
+        }
+
+        .stage-label {
+            font-weight: 600;
+            color: #2d5016;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .stage-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.3rem;
+        }
+
+        /* Disease Reports */
+        .disease-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .disease-item {
+            background: linear-gradient(135deg, #fff5f5 0%, #fee);
+            border: 2px solid #f8d7da;
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .disease-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(248, 215, 218, 0.3);
+        }
+
+        .disease-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .disease-severity {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .severity-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .severity-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .severity-low {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Yield Prediction */
+        .prediction-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #90caf9;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .prediction-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-label {
+            font-size: 1.2rem;
+            color: #1976d2;
+            margin-bottom: 1rem;
+        }
+
+        .prediction-factors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .factor-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .factor-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        .factor-label {
+            font-size: 0.9rem;
+            color: #1976d2;
+        }
+
+        /* Export Controls */
+        .export-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .btn-excel {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+        }
+
+        .btn-csv {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            border: 2px solid #d4edda;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+            border-color: #4a7c59;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2d5016;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #4a7c59;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .change-positive {
+            color: #28a745;
+        }
+
+        .change-negative {
+            color: #dc3545;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .growth-timeline {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-controls {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .nav-links a {
+                padding: 0.3rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">Smart Greenhouse</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="GreenhouseControl.html">Greenhouse Control</a></li>
+                    <li><a href="reports.html" class="active">Reports</a></li>
+                    <li><a href="farm_info.html">Farm Info</a></li>
+                    <li><a href="settings.html">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">📊 Analytics & Reports</h1>
+                <p class="page-subtitle">Comprehensive greenhouse performance analysis and insights</p>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔍 Report Filters</h2>
+                </div>
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label>Date Range</label>
+                        <select id="dateRange">
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d" selected>Last 30 Days</option>
+                            <option value="90d">Last 90 Days</option>
+                            <option value="1y">Last Year</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Greenhouse Zone</label>
+                        <select id="zoneFilter">
+                            <option value="all" selected>All Zones</option>
+                            <option value="zone-a">Zone A</option>
+                            <option value="zone-b">Zone B</option>
+                            <option value="zone-c">Zone C</option>
+                            <option value="zone-d">Zone D</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Crop Type</label>
+                        <select id="cropFilter">
+                            <option value="all" selected>All Crops</option>
+                            <option value="tomatoes">Tomatoes</option>
+                            <option value="lettuce">Lettuce</option>
+                            <option value="peppers">Peppers</option>
+                            <option value="herbs">Herbs</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>From Date</label>
+                        <input type="date" id="fromDate" value="2024-08-18">
+                    </div>
+                    <div class="filter-group">
+                        <label>To Date</label>
+                        <input type="date" id="toDate" value="2024-09-18">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">24.2°C</div>
+                    <div class="stat-label">Avg Temperature</div>
+                    <div class="stat-change change-positive">+0.8°C from last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">67%</div>
+                    <div class="stat-label">Avg Humidity</div>
+                    <div class="stat-change change-negative">-3% from last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2,340L</div>
+                    <div class="stat-label">Water Consumed</div>
+                    <div class="stat-change change-positive">+12% efficiency</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">485kWh</div>
+                    <div class="stat-label">Energy Used</div>
+                    <div class="stat-change change-negative">+8% from last month</div>
+                </div>
+            </div>
+
+            <!-- Historical Data Charts -->
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="chart-title">🌡️ Temperature & Humidity Trends</div>
+                    <canvas id="tempHumidityChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">💧 Soil Moisture & Water Usage</div>
+                    <canvas id="waterChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">⚡ Energy Consumption</div>
+                    <canvas id="energyChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">📈 Growth Performance</div>
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Plant Growth Stage Tracking -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🌱 Plant Growth Stage Tracking</h2>
+                </div>
+                <div class="growth-timeline">
+                    <div class="growth-stage">
+                        <div class="stage-icon stage-complete">🌱</div>
+                        <div class="stage-label">Seedling</div>
+                        <div class="stage-date">Completed</div>
+                    </div>
+                    <div class="growth-stage">
+                        <div class="stage-icon stage-complete">🌿</div>
+                        <div class="stage-label">Vegetative</div>
+                        <div class="stage-date">Completed</div>
+                    </div>
+                    <div class="growth-stage">
+                        <div class="stage-icon stage-current">🌸</div>
+                        <div class="stage-label">Flowering</div>
+                        <div class="stage-date">Day 45/60</div>
+                    </div>
+                    <div class="growth-stage">
+                        <div class="stage-icon stage-pending">🍅</div>
+                        <div class="stage-label">Fruiting</div>
+                        <div class="stage-date">Pending</div>
+                    </div>
+                    <div class="growth-stage">
+                        <div class="stage-icon stage-pending">🌾</div>
+                        <div class="stage-label">Harvest</div>
+                        <div class="stage-date">Estimated: Oct 15</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disease Reports -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔍 Disease Detection Reports</h2>
+                </div>
+                <div class="disease-grid">
+                    <div class="disease-item">
+                        <div class="disease-header">
+                            <span>🍃</span>
+                            <div>
+                                <h3>Leaf Spot Detection</h3>
+                                <span class="disease-severity severity-medium">Medium Risk</span>
+                            </div>
+                        </div>
+                        <p><strong>Location:</strong> Zone B, Section 3</p>
+                        <p><strong>Detected:</strong> Sept 15, 2024</p>
+                        <p><strong>Confidence:</strong> 87%</p>
+                        <p><strong>Action:</strong> Fungicide treatment applied</p>
+                    </div>
+                    <div class="disease-item">
+                        <div class="disease-header">
+                            <span>🦠</span>
+                            <div>
+                                <h3>Powdery Mildew</h3>
+                                <span class="disease-severity severity-low">Low Risk</span>
+                            </div>
+                        </div>
+                        <p><strong>Location:</strong> Zone A, Section 1</p>
+                        <p><strong>Detected:</strong> Sept 12, 2024</p>
+                        <p><strong>Confidence:</strong> 73%</p>
+                        <p><strong>Action:</strong> Monitoring increased</p>
+                    </div>
+                    <div class="disease-item">
+                        <div class="disease-header">
+                            <span>🐛</span>
+                            <div>
+                                <h3>Aphid Infestation</h3>
+                                <span class="disease-severity severity-high">High Risk</span>
+                            </div>
+                        </div>
+                        <p><strong>Location:</strong> Zone C, Section 2</p>
+                        <p><strong>Detected:</strong> Sept 10, 2024</p>
+                        <p><strong>Confidence:</strong> 94%</p>
+                        <p><strong>Action:</strong> Biological control deployed</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yield Prediction -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Yield Prediction Model</h2>
+                </div>
+                <div class="prediction-card">
+                    <div class="prediction-value">2.8kg</div>
+                    <div class="prediction-label">Predicted Yield per Plant</div>
+                    <p style="margin-bottom: 1rem; color: #1976d2;">Based on current growth patterns and environmental conditions</p>
+                    
+                    <div class="prediction-factors">
+                        <div class="factor-item">
+                            <div class="factor-value">92%</div>
+                            <div class="factor-label">Plant Health Score</div>
+                        </div>
+                        <div class="factor-item">
+                            <div class="factor-value">85%</div>
+                            <div class="factor-label">Climate Optimality</div>
+                        </div>
+                        <div class="factor-item">
+                            <div class="factor-value">78%</div>
+                            <div class="factor-label">Resource Efficiency</div>
+                        </div>
+                        <div class="factor-item">
+                            <div class="factor-value">Oct 20</div>
+                            <div class="factor-label">Harvest Date</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Controls -->
+            <div class="export-controls">
+                <button class="export-btn btn-pdf" onclick="exportReport('pdf')">
+                    📄 Export PDF Report
+                </button>
+                <button class="export-btn btn-excel" onclick="exportReport('excel')">
+                    📊 Export Excel Report
+                </button>
+                <button class="export-btn btn-csv" onclick="exportReport('csv')">
+                    📋 Export CSV Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js Configuration
+        Chart.defaults.font.family = 'Arial, sans-serif';
+        Chart.defaults.color = '#2d5016';
+
+        // Temperature & Humidity Chart
+        const tempHumidityCtx = document.getElementById('tempHumidityChart').getContext('2d');
+        const tempHumidityChart = new Chart(tempHumidityCtx, {
+            type: 'line',
+            data: {
+                labels: ['Sept 1', 'Sept 3', 'Sept 5', 'Sept 7', 'Sept 9', 'Sept 11', 'Sept 13', 'Sept 15', 'Sept 17'],
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: [22.5, 24.1, 23.8, 25.2, 24.7, 23.9, 25.1, 24.3, 24.8],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Humidity (%)',
+                    data: [65, 68, 72, 70, 66, 69, 71, 67, 68],
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(45, 80, 22, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(45, 80, 22, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Water Usage Chart
+        const waterCtx = document.getElementById('waterChart').getContext('2d');
+        const waterChart = new Chart(waterCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Soil Moisture (%)',
+                    data: [45, 52, 48, 51],
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: '#28a745',
+                    borderWidth: 2,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Water Usage (L)',
+                    data: [580, 620, 595, 610],
+                    type: 'line',
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    fill: false,
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Soil Moisture (%)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Water Usage (L)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+
+        // Energy Consumption Chart
+        const energyCtx = document.getElementById('energyChart').getContext('2d');
+        const energyChart = new Chart(energyCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Lighting', 'Climate Control', 'Irrigation', 'Monitoring'],
+                datasets: [{
+                    data: [45, 30, 15, 10],
+                    backgroundColor: [
+                        '#ffc107',
+                        '#28a745',
+                        '#007bff',
+                        '#6f42c1'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Energy Distribution (%)'
+                    }
+                }
+            }
+        });
+
+        // Growth Performance Chart
+        const growthCtx = document.getElementById('growthChart').getContext('2d');
+        const growthChart = new Chart(growthCtx, {
+            type: 'line',
+            data: {
+                labels: ['Day 1', 'Day 7', 'Day 14', 'Day 21', 'Day 28', 'Day 35', 'Day 42'],
+                datasets: [{
+                    label: 'Plant Height (cm)',
+                    data: [2, 5, 12, 18, 25, 32, 38],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Leaf Count',
+                    data: [2, 4, 8, 12, 16, 22, 28],
+                    borderColor: '#4a7c59',
+                    backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(45, 80, 22, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(45, 80, 22, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Filter Functions
+        function updateCharts() {
+            const dateRange = document.getElementById('dateRange').value;
+            const zone = document.getElementById('zoneFilter').value;
+            const crop = document.getElementById('cropFilter').value;
+            
+            console.log('Updating charts with filters:', { dateRange, zone, crop });
+            
+            // Simulate data update based on filters
+            // In a real application, this would fetch new data from your backend
+            updateChartData(dateRange, zone, crop);
+        }
+
+        function updateChartData(dateRange, zone, crop) {
+            // Generate new sample data based on filters
+            let multiplier = 1;
+            
+            if (zone === 'zone-a') multiplier = 1.1;
+            else if (zone === 'zone-b') multiplier = 0.9;
+            else if (zone === 'zone-c') multiplier = 1.05;
+            else if (zone === 'zone-d') multiplier = 0.95;
+            
+            // Update temperature data
+            const newTempData = [22.5, 24.1, 23.8, 25.2, 24.7, 23.9, 25.1, 24.3, 24.8].map(val => 
+                Math.round((val * multiplier) * 10) / 10
+            );
+            
+            tempHumidityChart.data.datasets[0].data = newTempData;
+            tempHumidityChart.update();
+            
+            // Update other charts similarly
+            const newWaterData = [580, 620, 595, 610].map(val => 
+                Math.round(val * multiplier)
+            );
+            waterChart.data.datasets[1].data = newWaterData;
+            waterChart.update();
+            
+            // Update growth chart
+            const newGrowthData = [2, 5, 12, 18, 25, 32, 38].map(val => 
+                Math.round(val * multiplier)
+            );
+            growthChart.data.datasets[0].data = newGrowthData;
+            growthChart.update();
+        }
+
+        // Export Functions
+        function exportReport(format) {
+            const currentDate = new Date().toLocaleDateString();
+            const dateRange = document.getElementById('dateRange').value;
+            const zone = document.getElementById('zoneFilter').value;
+            const crop = document.getElementById('cropFilter').value;
+            
+            // Simulate export process
+            let message = `Exporting ${format.toUpperCase()} report...\n\n`;
+            message += `Report Details:\n`;
+            message += `- Date Range: ${dateRange}\n`;
+            message += `- Zone: ${zone}\n`;
+            message += `- Crop Type: ${crop}\n`;
+            message += `- Generated: ${currentDate}\n\n`;
+            
+            switch(format) {
+                case 'pdf':
+                    message += `The PDF report will include:\n`;
+                    message += `• Executive summary with key metrics\n`;
+                    message += `• All historical data charts\n`;
+                    message += `• Plant growth timeline\n`;
+                    message += `• Disease detection reports\n`;
+                    message += `• Yield predictions\n`;
+                    message += `• Recommendations and insights`;
+                    break;
+                case 'excel':
+                    message += `The Excel report will include:\n`;
+                    message += `• Raw sensor data sheets\n`;
+                    message += `• Calculated metrics and trends\n`;
+                    message += `• Interactive charts and graphs\n`;
+                    message += `• Data analysis tables\n`;
+                    message += `• Pivot tables for custom analysis`;
+                    break;
+                case 'csv':
+                    message += `The CSV export will include:\n`;
+                    message += `• Time-series sensor data\n`;
+                    message += `• Plant health measurements\n`;
+                    message += `• Resource consumption data\n`;
+                    message += `• Environmental conditions log\n`;
+                    message += `• Disease detection records`;
+                    break;
+            }
+            
+            alert(message);
+            
+            // In a real application, this would trigger the actual export
+            console.log(`Exporting ${format} report with filters:`, {
+                dateRange, zone, crop
+            });
+        }
+
+        // Event Listeners
+        document.getElementById('dateRange').addEventListener('change', updateCharts);
+        document.getElementById('zoneFilter').addEventListener('change', updateCharts);
+        document.getElementById('cropFilter').addEventListener('change', updateCharts);
+        
+        document.getElementById('fromDate').addEventListener('change', function() {
+            if (document.getElementById('dateRange').value === 'custom') {
+                updateCharts();
+            }
+        });
+        
+        document.getElementById('toDate').addEventListener('change', function() {
+            if (document.getElementById('dateRange').value === 'custom') {
+                updateCharts();
+            }
+        });
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Only prevent default for non-existing pages
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                }
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                console.log('Navigating to:', this.textContent);
+            });
+        });
+
+        // Disease report interactions
+        document.querySelectorAll('.disease-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'translateY(-3px)';
+                }, 150);
+            });
+        });
+
+        // Stats card animations
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.08) rotate(1deg)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+
+        // Growth stage interactions
+        document.querySelectorAll('.growth-stage').forEach(stage => {
+            stage.addEventListener('click', function() {
+                const stageLabel = this.querySelector('.stage-label').textContent;
+                const stageDate = this.querySelector('.stage-date').textContent;
+                
+                alert(`Growth Stage: ${stageLabel}\nStatus: ${stageDate}\n\nClick on a stage to view detailed growth metrics and recommendations for this phase.`);
+            });
+        });
+
+        // Simulate real-time updates for current values
+        function updateLiveStats() {
+            // Update temperature
+            const tempElement = document.querySelector('.stat-card .stat-value');
+            if (tempElement && tempElement.textContent.includes('°C')) {
+                const baseTemp = 24.2;
+                const variation = (Math.random() - 0.5) * 0.4;
+                const newTemp = (baseTemp + variation).toFixed(1);
+                tempElement.textContent = newTemp + '°C';
+            }
+            
+            // Update other stats with small variations
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach((stat, index) => {
+                if (index === 1 && stat.textContent.includes('%')) {
+                    // Humidity
+                    const baseHum = 67;
+                    const variation = Math.floor((Math.random() - 0.5) * 2);
+                    stat.textContent = (baseHum + variation) + '%';
+                }
+            });
+        }
+
+        // Update live stats every 5 seconds
+        setInterval(updateLiveStats, 5000);
+
+        // Initialize with default view
+        updateCharts();
+
+        console.log('Smart Greenhouse Reports system initialized successfully!');
+    </script>
+</body>
+</html>

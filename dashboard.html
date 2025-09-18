@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Monitoring Dashboard - Smart Greenhouse</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+            color: #2d5016;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(45, 80, 22, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '🌱';
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(45, 80, 22, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e8f5e8;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d5016;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5016 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(45, 80, 22, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e8f5e8;
+            color: #2d5016;
+            border: 1px solid #4a7c59;
+        }
+
+        .btn-secondary:hover {
+            background: #d4edda;
+        }
+
+        .btn-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+
+        .btn-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #dc3545;
+        }
+
+        /* Sensor Gauges */
+        .gauges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .gauge-container {
+            position: relative;
+            text-align: center;
+        }
+
+        .gauge {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .gauge-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d5016;
+        }
+
+        .gauge-label {
+            margin-top: 1rem;
+            font-weight: 500;
+            color: #4a7c59;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        .chart-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background: #e8f5e8;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #2d5016;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active, .tab:hover {
+            background: #4a7c59;
+            color: white;
+        }
+
+        /* Camera Feed */
+        .camera-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .camera-feed {
+            background: #000;
+            border-radius: 10px;
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            overflow: hidden;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 1rem;
+        }
+
+        .camera-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .capture-area {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            border: 2px dashed #4a7c59;
+        }
+
+        /* AI Disease Detection */
+        .disease-analysis {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .analysis-result {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid #28a745;
+        }
+
+        .analysis-result.show {
+            display: block;
+        }
+
+        .health-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .score-healthy {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .score-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+        }
+
+        .score-critical {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+        }
+
+        .symptoms-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .symptom-item {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 5px;
+            border-left: 3px solid #ffc107;
+        }
+
+        .remedy {
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 3px solid #28a745;
+        }
+
+        /* SCADA Section */
+        .scada-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .alarm-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .alarm-critical {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .alarm-warning {
+            background: #fff8e1;
+            border-color: #ff9800;
+        }
+
+        .alarm-info {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .alarm-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .alarm-details {
+            flex: 1;
+        }
+
+        .alarm-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .event-log {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .log-entry {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .log-timestamp {
+            color: #6c757d;
+            margin-right: 1rem;
+        }
+
+        .log-level-info { color: #0d6efd; }
+        .log-level-warn { color: #fd7e14; }
+        .log-level-error { color: #dc3545; }
+
+        /* Live Indicator */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4a7c59;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .camera-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .scada-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gauges-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .chart-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">Smart Greenhouse</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="GreenhouseControl.html">Greenhouse Control</a></li>
+                    <li><a href="reports.html">Reports</a></li>
+                    <li><a href="farm_info.html">Farm Info</a></li>
+                    <li><a href="#" id="settings-btn">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Sensor Gauges -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Live Sensor Gauges <span class="live-indicator"></span></h2>
+                    <div class="card-controls">
+                        <button class="btn btn-secondary" onclick="resetGauges()">Reset</button>
+                        <button class="btn btn-primary" onclick="exportData()">Export Data</button>
+                    </div>
+                </div>
+                <div class="gauges-grid">
+                    <div class="gauge-container">
+                        <canvas class="gauge" id="tempGauge" width="150" height="150"></canvas>
+                        <div class="gauge-value" id="tempValue">24.5°C</div>
+                        <div class="gauge-label">Temperature</div>
+                    </div>
+                    <div class="gauge-container">
+                        <canvas class="gauge" id="humidityGauge" width="150" height="150"></canvas>
+                        <div class="gauge-value" id="humidityValue">68%</div>
+                        <div class="gauge-label">Humidity</div>
+                    </div>
+                    <div class="gauge-container">
+                        <canvas class="gauge" id="soilGauge" width="150" height="150"></canvas>
+                        <div class="gauge-value" id="soilValue">45%</div>
+                        <div class="gauge-label">Soil Moisture</div>
+                    </div>
+                    <div class="gauge-container">
+                        <canvas class="gauge" id="lightGauge" width="150" height="150"></canvas>
+                        <div class="gauge-value" id="lightValue">850 lux</div>
+                        <div class="gauge-label">Light Intensity</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Charts -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📈 Historical Data Trends</h2>
+                </div>
+                <div class="chart-tabs">
+                    <button class="tab active" onclick="showChart('temperature')">Temperature</button>
+                    <button class="tab" onclick="showChart('humidity')">Humidity</button>
+                    <button class="tab" onclick="showChart('soil')">Soil Moisture</button>
+                    <button class="tab" onclick="showChart('light')">Light</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="historicalChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Camera and AI Analysis -->
+            <div class="dashboard-layout">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📹 Live Camera Feed</h2>
+                        <div class="card-controls">
+                            <button class="btn btn-secondary" onclick="switchCamera()">Switch View</button>
+                            <button class="btn btn-primary" onclick="toggleFullscreen()">Fullscreen</button>
+                        </div>
+                    </div>
+                    <div class="camera-section">
+                        <div class="camera-feed" id="cameraFeed">
+                            📹
+                            <div class="camera-overlay">
+                                <div><strong>Zone A - Main Growing Area</strong></div>
+                                <div>Live Stream • 1080p • 30fps</div>
+                            </div>
+                        </div>
+                        <div class="camera-controls">
+                            <button class="btn btn-primary" onclick="captureImage()">
+                                📸 Capture Image
+                            </button>
+                            <button class="btn btn-secondary" onclick="recordVideo()">
+                                🎥 Record Video
+                            </button>
+                            <div class="capture-area" id="captureArea">
+                                <p>📷 No image captured</p>
+                                <p style="font-size: 0.9rem; color: #666;">Captured images appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🤖 AI Disease Detection</h2>
+                    </div>
+                    <div class="disease-analysis">
+                        <h3>Plant Health Analysis</h3>
+                        <p>Capture an image to analyze plant health using AI-powered disease detection.</p>
+                        <button class="btn btn-primary" onclick="analyzeImage()" disabled id="analyzeBtn">
+                            <span class="loading" id="analysisLoading" style="display: none;"></span>
+                            Analyze Captured Image
+                        </button>
+                        
+                        <div class="analysis-result" id="analysisResult">
+                            <div class="health-score">
+                                <div class="score-circle score-healthy" id="scoreCircle">92%</div>
+                                <div>
+                                    <h4>Overall Health Score</h4>
+                                    <p id="healthStatus">Excellent plant health detected</p>
+                                </div>
+                            </div>
+                            
+                            <h4>Detected Symptoms:</h4>
+                            <ul class="symptoms-list" id="symptomsList">
+                                <li class="symptom-item">Minor leaf discoloration on lower leaves</li>
+                                <li class="symptom-item">Slight nutrient deficiency signs</li>
+                            </ul>
+                            
+                            <div class="remedy">
+                                <h4>🌿 Recommended Actions:</h4>
+                                <p id="remedyText">Increase nitrogen-rich fertilizer application. Monitor watering schedule. Consider pruning affected leaves.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCADA Live Trends -->
+            <div class="card full-width">
+                <div class="card-header">
+                    <h2 class="card-title">⚡ SCADA Live Trends & Monitoring</h2>
+                    <div class="card-controls">
+                        <button class="btn btn-secondary" onclick="clearAlarms()">Clear All</button>
+                        <button class="btn btn-warning" onclick="acknowledgeAlarms()">Acknowledge</button>
+                    </div>
+                </div>
+                <div class="scada-grid">
+                    <div>
+                        <h3>🚨 Active Alarms</h3>
+                        <div id="alarmsList">
+                            <div class="alarm-item alarm-warning">
+                                <div class="alarm-icon">⚠️</div>
+                                <div class="alarm-details">
+                                    <strong>High Temperature Alert</strong><br>
+                                    Zone B: 32.1°C exceeds setpoint (28°C)
+                                    <div class="alarm-time">2 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="alarm-item alarm-critical">
+                                <div class="alarm-icon">🚨</div>
+                                <div class="alarm-details">
+                                    <strong>Water Pump Failure</strong><br>
+                                    Main irrigation pump offline - backup engaged
+                                    <div class="alarm-time">5 minutes ago</div>
+                                </div>
+                            </div>
+                            <div class="alarm-item alarm-info">
+                                <div class="alarm-icon">💡</div>
+                                <div class="alarm-details">
+                                    <strong>Light Schedule Update</strong><br>
+                                    LED intensity adjusted for optimal growth
+                                    <div class="alarm-time">12 minutes ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>📝 Event Log</h3>
+                        <div class="event-log" id="eventLog">
+                            <div class="log-entry">
+                                <span class="log-timestamp">14:35:22</span>
+                                <span class="log-level-error">[ERROR]</span>
+                                Water pump P001 communication timeout
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-timestamp">14:34:15</span>
+                                <span class="log-level-warn">[WARN]</span>
+                                Temperature sensor T003 reading above threshold
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-timestamp">14:32:48</span>
+                                <span class="log-level-info">[INFO]</span>
+                                Backup water pump P002 started successfully
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-timestamp">14:30:12</span>
+                                <span class="log-level-info">[INFO]</span>
+                                Light intensity adjusted to 85% for Zone A
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-timestamp">14:28:33</span>
+                                <span class="log-level-warn">[WARN]</span>
+                                CO2 levels dropping below optimal range
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-timestamp">14:25:07</span>
+                                <span class="log-level-info">[INFO]</span>
+                                Irrigation cycle completed for Zone B
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel (hidden by default, appears under Settings button) -->
+    <div id="settings-panel" style="display:none; position:absolute; right:40px; top:70px; z-index:2000; width:400px; max-width:90vw;">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">⚙️ Settings</h2>
+            </div>
+            <div style="padding:1rem;">
+                <!-- Device Setup -->
+                <h3>Device Setup</h3>
+                <div>
+                    <label>Add Sensor: <input type="text" id="add-sensor-input" placeholder="Sensor Name"></label>
+                    <button onclick="addSensor()">Add</button>
+                </div>
+                <div>
+                    <label>Remove Sensor:
+                        <select id="remove-sensor-select"></select>
+                    </label>
+                    <button onclick="removeSensor()">Remove</button>
+                </div>
+                <hr>
+                <!-- Camera Integration -->
+                <h3>Camera Integration</h3>
+                <label>
+                    <input type="checkbox" id="camera-toggle" checked>
+                    Enable Camera
+                </label>
+                <div>
+                    <label>Snapshot Schedule:
+                        <select id="snapshot-schedule">
+                            <option value="5">Every 5 min</option>
+                            <option value="15">Every 15 min</option>
+                            <option value="30">Every 30 min</option>
+                            <option value="60">Every 1 hour</option>
+                        </select>
+                    </label>
+                </div>
+                <hr>
+                <!-- SCADA Connection -->
+                <h3>SCADA Connection</h3>
+                <label>SCADA Server IP: <input type="text" id="scada-ip" placeholder="192.168.1.100"></label>
+                <button onclick="connectSCADA()">Connect</button>
+                <span id="scada-status" style="margin-left:1rem; color:green;"></span>
+                <hr>
+                <!-- Language & Alert Preferences -->
+                <h3>Language & Alert Preferences</h3>
+                <label>
+                    Language:
+                    <select id="language-select">
+                        <option value="en">English</option>
+                        <option value="si">සිංහල</option>
+                        <option value="ta">தமிழ்</option>
+                    </select>
+                </label>
+                <div>
+                    <label>
+                        <input type="checkbox" id="alert-email" checked>
+                        Email Alerts
+                    </label>
+                    <label style="margin-left:1rem;">
+                        <input type="checkbox" id="alert-sms">
+                        SMS Alerts
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentChart = null;
+        let capturedImage = false;
+        
+        // Initialize gauges
+        function initializeGauges() {
+            const gauges = ['tempGauge', 'humidityGauge', 'soilGauge', 'lightGauge'];
+            
+            gauges.forEach(gaugeId => {
+                const canvas = document.getElementById(gaugeId);
+                const ctx = canvas.getContext('2d');
+                drawGauge(ctx, 0, 100, 0);
+            });
+        }
+
+        // Draw gauge function
+        function drawGauge(ctx, min, max, value) {
+            const centerX = 75;
+            const centerY = 75;
+            const radius = 60;
+            
+            ctx.clearRect(0, 0, 150, 150);
+            
+            // Background circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, 0.25 * Math.PI);
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = '#e8f5e8';
+            ctx.stroke();
+            
+            // Value arc
+            const percentage = (value - min) / (max - min);
+            const startAngle = 0.75 * Math.PI;
+            const endAngle = startAngle + (1.5 * Math.PI * percentage);
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = percentage > 0.8 ? '#dc3545' : percentage > 0.6 ? '#ffc107' : '#28a745';
+            ctx.stroke();
+        }
+
+        // Update sensor data
+        function updateSensorData() {
+            // Temperature
+            const temp = 20 + Math.random() * 15;
+            document.getElementById('tempValue').textContent = temp.toFixed(1) + '°C';
+            const tempCanvas = document.getElementById('tempGauge');
+            drawGauge(tempCanvas.getContext('2d'), 15, 35, temp);
+
+            // Humidity
+            const humidity = 40 + Math.random() * 50;
+            document.getElementById('humidityValue').textContent = Math.round(humidity) + '%';
+            const humidityCanvas = document.getElementById('humidityGauge');
+            drawGauge(humidityCanvas.getContext('2d'), 0, 100, humidity);
+
+            // Soil Moisture
+            const soil = 30 + Math.random() * 60;
+            document.getElementById('soilValue').textContent = Math.round(soil) + '%';
+            const soilCanvas = document.getElementById('soilGauge');
+            drawGauge(soilCanvas.getContext('2d'), 0, 100, soil);
+
+            // Light Intensity
+            const light = 500 + Math.random() * 800;
+            document.getElementById('lightValue').textContent = Math.round(light) + ' lux';
+            const lightCanvas = document.getElementById('lightGauge');
+            drawGauge(lightCanvas.getContext('2d'), 0, 1500, light);
+        }
+
+        // Initialize historical chart
+        function initializeChart() {
+            const ctx = document.getElementById('historicalChart').getContext('2d');
+            
+            // Generate sample data
+            const labels = [];
+            const data = [];
+            const now = new Date();
+            
+            for (let i = 23; i >= 0; i--) {
+                const time = new Date(now.getTime() - (i * 60 * 60 * 1000));
+                labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+                data.push(20 + Math.random() * 10 + Math.sin(i / 4) * 3);
+            }
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: data,
+                        borderColor: '#4a7c59',
+                        backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(74, 124, 89, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(74, 124, 89, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show different chart data
+        function showChart(type) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const ctx = document.getElementById('historicalChart').getContext('2d');
+            const labels = [];
+            const data = [];
+            const now = new Date();
+            
+            for (let i = 23; i >= 0; i--) {
+                const time = new Date(now.getTime() - (i * 60 * 60 * 1000));
+                labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+                
+                switch(type) {
+                    case 'temperature':
+                        data.push(20 + Math.random() * 10 + Math.sin(i / 4) * 3);
+                        break;
+                    case 'humidity':
+                        data.push(50 + Math.random() * 30 + Math.cos(i / 3) * 10);
+                        break;
+                    case 'soil':
+                        data.push(40 + Math.random() * 40 + Math.sin(i / 6) * 15);
+                        break;
+                    case 'light':
+                        data.push(600 + Math.random() * 400 + (i < 8 || i > 18 ? -300 : 0));
+                        break;
+                }
+            }
+            
+            const units = {
+                temperature: '°C',
+                humidity: '%',
+                soil: '%',
+                light: ' lux'
+            };
+            
+            const colors = {
+                temperature: '#dc3545',
+                humidity: '#007bff',
+                soil: '#28a745',
+                light: '#ffc107'
+            };
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${type.charAt(0).toUpperCase() + type.slice(1)} (${units[type]})`,
+                        data: data,
+                        borderColor: colors[type],
+                        backgroundColor: colors[type] + '20',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(74, 124, 89, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(74, 124, 89, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Camera functions
+        function captureImage() {
+            const captureArea = document.getElementById('captureArea');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            
+            // Simulate image capture
+            captureArea.innerHTML = `
+                <div style="padding: 2rem; background: #f8f9fa; border: 2px solid #28a745; border-radius: 8px;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📷</div>
+                    <p><strong>Image Captured Successfully!</strong></p>
+                    <p style="font-size: 0.9rem; color: #666;">Plant_Zone_A_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.jpg</p>
+                    <p style="font-size: 0.8rem; color: #666;">Resolution: 1920x1080 | Size: 2.4MB</p>
+                </div>
+            `;
+            
+            capturedImage = true;
+            analyzeBtn.disabled = false;
+            analyzeBtn.style.opacity = '1';
+        }
+
+        function switchCamera() {
+            const cameraFeed = document.getElementById('cameraFeed');
+            const zones = ['Zone A - Main Growing Area', 'Zone B - Seedling Section', 'Zone C - Flowering Area'];
+            const currentZone = cameraFeed.querySelector('.camera-overlay div strong').textContent;
+            const currentIndex = zones.findIndex(zone => zone === currentZone);
+            const nextIndex = (currentIndex + 1) % zones.length;
+            
+            cameraFeed.querySelector('.camera-overlay div strong').textContent = zones[nextIndex];
+        }
+
+        function toggleFullscreen() {
+            alert('Entering fullscreen mode...\n\nThis would open the camera feed in fullscreen view with enhanced controls.');
+        }
+
+        function recordVideo() {
+            const btn = event.target;
+            if (btn.textContent.includes('Record')) {
+                btn.innerHTML = '⏹️ Stop Recording';
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-danger');
+                
+                // Simulate recording
+                setTimeout(() => {
+                    btn.innerHTML = '🎥 Record Video';
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-secondary');
+                    alert('Video recorded successfully!\nSaved as: Recording_' + new Date().toISOString().slice(0,10) + '.mp4');
+                }, 3000);
+            }
+        }
+
+        // AI Disease Detection
+        function analyzeImage() {
+            if (!capturedImage) return;
+            
+            const analysisBtn = document.getElementById('analyzeBtn');
+            const loading = document.getElementById('analysisLoading');
+            const result = document.getElementById('analysisResult');
+            
+            // Show loading
+            loading.style.display = 'inline-block';
+            analysisBtn.disabled = true;
+            
+            // Simulate AI analysis
+            setTimeout(() => {
+                loading.style.display = 'none';
+                analysisBtn.disabled = false;
+                result.classList.add('show');
+                
+                // Generate random analysis results
+                const healthScores = [92, 78, 65, 45, 88];
+                const score = healthScores[Math.floor(Math.random() * healthScores.length)];
+                
+                const scoreCircle = document.getElementById('scoreCircle');
+                const healthStatus = document.getElementById('healthStatus');
+                const symptomsList = document.getElementById('symptomsList');
+                const remedyText = document.getElementById('remedyText');
+                
+                scoreCircle.textContent = score + '%';
+                
+                if (score >= 85) {
+                    scoreCircle.className = 'score-circle score-healthy';
+                    healthStatus.textContent = 'Excellent plant health detected';
+                    symptomsList.innerHTML = `
+                        <li class="symptom-item">Minor leaf discoloration on lower leaves</li>
+                        <li class="symptom-item">Slight nutrient uptake variation</li>
+                    `;
+                    remedyText.textContent = 'Continue current care routine. Monitor for any changes. Consider light pruning of lower leaves.';
+                } else if (score >= 60) {
+                    scoreCircle.className = 'score-circle score-warning';
+                    healthStatus.textContent = 'Moderate health concerns detected';
+                    symptomsList.innerHTML = `
+                        <li class="symptom-item">Yellowing leaves detected</li>
+                        <li class="symptom-item">Possible nutrient deficiency</li>
+                        <li class="symptom-item">Growth rate below optimal</li>
+                    `;
+                    remedyText.textContent = 'Adjust fertilizer schedule. Check pH levels. Increase monitoring frequency. Consider soil amendment.';
+                } else {
+                    scoreCircle.className = 'score-circle score-critical';
+                    healthStatus.textContent = 'Critical health issues detected';
+                    symptomsList.innerHTML = `
+                        <li class="symptom-item">Severe leaf damage identified</li>
+                        <li class="symptom-item">Possible disease symptoms</li>
+                        <li class="symptom-item">Root system stress indicators</li>
+                    `;
+                    remedyText.textContent = 'Immediate intervention required. Isolate affected plants. Consult agricultural specialist. Apply treatment protocol.';
+                }
+            }, 2000);
+        }
+
+        // SCADA functions
+        function clearAlarms() {
+            document.getElementById('alarmsList').innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    ✅ All alarms cleared
+                </div>
+            `;
+        }
+
+        function acknowledgeAlarms() {
+            const alarms = document.querySelectorAll('.alarm-item');
+            alarms.forEach(alarm => {
+                alarm.style.opacity = '0.6';
+                alarm.querySelector('.alarm-details').innerHTML += '<br><small style="color: #28a745;">✓ Acknowledged</small>';
+            });
+        }
+
+        // Utility functions
+        function resetGauges() {
+            initializeGauges();
+            setTimeout(updateSensorData, 500);
+        }
+
+        function exportData() {
+            alert('Exporting sensor data...\n\nData exported to: greenhouse_data_' + new Date().toISOString().slice(0,10) + '.csv');
+        }
+
+        // Add new log entries periodically
+        function addLogEntry() {
+            const eventLog = document.getElementById('eventLog');
+            const logTypes = [
+                { level: 'info', message: 'Sensor calibration completed successfully' },
+                { level: 'warn', message: 'Network latency increased to 145ms' },
+                { level: 'info', message: 'Automated irrigation cycle started' },
+                { level: 'error', message: 'Communication timeout on sensor H004' },
+                { level: 'info', message: 'LED light intensity adjusted automatically' }
+            ];
+            
+            const randomLog = logTypes[Math.floor(Math.random() * logTypes.length)];
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('en-US', { hour12: false });
+            
+            const newEntry = document.createElement('div');
+            newEntry.className = 'log-entry';
+            newEntry.innerHTML = `
+                <span class="log-timestamp">${timestamp}</span>
+                <span class="log-level-${randomLog.level}">[${randomLog.level.toUpperCase()}]</span>
+                ${randomLog.message}
+            `;
+            
+            eventLog.insertBefore(newEntry, eventLog.firstChild);
+            
+            // Keep only last 20 entries
+            while (eventLog.children.length > 20) {
+                eventLog.removeChild(eventLog.lastChild);
+            }
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGauges();
+            initializeChart();
+            
+            // Update data every 3 seconds
+            setInterval(updateSensorData, 3000);
+            
+            // Add log entries every 10 seconds
+            setInterval(addLogEntry, 10000);
+            
+            // Initial data update
+            updateSensorData();
+        });
+         // Navigation functionality
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Only prevent default for non-existing pages
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                }
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                console.log('Navigating to:', this.textContent);
+            });
+        });
+
+        // Settings panel logic
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsPanel = document.getElementById('settings-panel');
+        let sensors = ['Temperature', 'Humidity', 'Soil Moisture'];
+
+        function updateSensorSelect() {
+            const select = document.getElementById('remove-sensor-select');
+            select.innerHTML = '';
+            sensors.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                select.appendChild(opt);
+            });
+        }
+        updateSensorSelect();
+
+        function addSensor() {
+            const input = document.getElementById('add-sensor-input');
+            if (input.value.trim()) {
+                sensors.push(input.value.trim());
+                updateSensorSelect();
+                alert('Sensor added: ' + input.value.trim());
+                input.value = '';
+            }
+        }
+        function removeSensor() {
+            const select = document.getElementById('remove-sensor-select');
+            if (select.value) {
+                sensors = sensors.filter(s => s !== select.value);
+                updateSensorSelect();
+                alert('Sensor removed: ' + select.value);
+            }
+        }
+        function connectSCADA() {
+            const ip = document.getElementById('scada-ip').value;
+            if (ip) {
+                document.getElementById('scada-status').textContent = 'Connected to ' + ip;
+                document.getElementById('scada-status').style.color = 'green';
+            } else {
+                document.getElementById('scada-status').textContent = 'Please enter IP';
+                document.getElementById('scada-status').style.color = 'red';
+            }
+        }
+
+        // Show/hide settings panel under the button
+        settingsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (settingsPanel.style.display === 'none') {
+                settingsPanel.style.display = 'block';
+                // Position panel under the button
+                const rect = settingsBtn.getBoundingClientRect();
+                settingsPanel.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+                settingsPanel.style.right = (window.innerWidth - rect.right - 10) + 'px';
+            } else {
+                settingsPanel.style.display = 'none';
+            }
+        });
+
+        // Hide panel if clicked outside
+        document.addEventListener('click', function(e) {
+            if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+                settingsPanel.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

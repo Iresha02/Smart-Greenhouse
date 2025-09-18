@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Greenhouse Control System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+            color: #2d5016;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(45, 80, 22, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '🌱';
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e8f5e8;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(45, 80, 22, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e8f5e8;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d5016;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Climate Data Dashboard */
+        .climate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .climate-item {
+            text-align: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            border-radius: 10px;
+            border: 2px solid #d4edda;
+            transition: all 0.3s ease;
+        }
+
+        .climate-item:hover {
+            transform: scale(1.05);
+            border-color: #4a7c59;
+        }
+
+        .climate-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .climate-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d5016;
+            margin-bottom: 0.3rem;
+        }
+
+        .climate-label {
+            color: #4a7c59;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .climate-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        .status-good {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Plant Health */
+        .health-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .health-item {
+            text-align: center;
+            flex: 1;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 0 0.5rem;
+        }
+
+        .health-healthy {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+        }
+
+        .health-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+        }
+
+        .health-risk {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+        }
+
+        .health-count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Live Camera */
+        .camera-container {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .camera-container:hover {
+            transform: scale(1.02);
+        }
+
+        .camera-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #4a7c59, #2d5016);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 1rem;
+        }
+
+        /* Live Monitoring Widget */
+        .monitoring-widget {
+            background: #2d5016;
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .monitoring-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .monitor-item {
+            text-align: center;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .monitor-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #90EE90;
+        }
+
+        /* Notifications */
+        .notification {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .notification-info {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #1565c0;
+        }
+
+        .notification-warning {
+            background: #fff8e1;
+            border-color: #ff9800;
+            color: #e65100;
+        }
+
+        .notification-error {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+
+        .notification-icon {
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+
+        .notification-time {
+            margin-left: auto;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Live Data Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .climate-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .nav-links a {
+                padding: 0.3rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .climate-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .health-summary {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .health-item {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">Smart Greenhouse</div>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="GreenhouseControl.html">Greenhouse Control</a></li>
+                    <li><a href="reports.html">Reports</a></li>
+                    <li><a href="farm_info.html">Farm Info</a></li>
+                    <li>
+                        <a href="#" id="settings-btn">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <div class="dashboard-grid">
+                <!-- Left Panel -->
+                <div class="left-panel">
+                    <!-- Real-time Climate Data -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                🌡️ Real-time Climate Data
+                                <span class="live-indicator"></span>
+                            </h2>
+                        </div>
+                        <div class="climate-grid">
+                            <div class="climate-item">
+                                <div class="climate-icon">🌡️</div>
+                                <div class="climate-value" id="temperature">24.5°C</div>
+                                <div class="climate-label">Temperature</div>
+                                <span class="climate-status status-good">Optimal</span>
+                            </div>
+                            <div class="climate-item">
+                                <div class="climate-icon">💧</div>
+                                <div class="climate-value" id="humidity">68%</div>
+                                <div class="climate-label">Humidity</div>
+                                <span class="climate-status status-good">Normal</span>
+                            </div>
+                            <div class="climate-item">
+                                <div class="climate-icon">🌱</div>
+                                <div class="climate-value" id="soil-moisture">45%</div>
+                                <div class="climate-label">Soil Moisture</div>
+                                <span class="climate-status status-warning">Low</span>
+                            </div>
+                            <div class="climate-item">
+                                <div class="climate-icon">💦</div>
+                                <div class="climate-value" id="water-level">78%</div>
+                                <div class="climate-label">Water Level</div>
+                                <span class="climate-status status-good">Good</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Live Monitoring Widget -->
+                        <div class="monitoring-widget">
+                            <h3>Live SCADA Data Stream <span class="live-indicator"></span></h3>
+                            <div class="monitoring-grid">
+                                <div class="monitor-item">
+                                    <div class="monitor-value" id="ph-level">6.8</div>
+                                    <div>pH Level</div>
+                                </div>
+                                <div class="monitor-item">
+                                    <div class="monitor-value" id="light-intensity">850</div>
+                                    <div>Light (lux)</div>
+                                </div>
+                                <div class="monitor-item">
+                                    <div class="monitor-value" id="co2-level">420</div>
+                                    <div>CO₂ (ppm)</div>
+                                </div>
+                                <div class="monitor-item">
+                                    <div class="monitor-value" id="airflow">2.3</div>
+                                    <div>Airflow (m/s)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Plant Health Snapshot -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">🌿 Plant Health Snapshot</h2>
+                        </div>
+                        <div class="health-summary">
+                            <div class="health-item health-healthy">
+                                <div class="health-count">142</div>
+                                <div>Healthy Plants</div>
+                            </div>
+                            <div class="health-item health-warning">
+                                <div class="health-count">8</div>
+                                <div>Warning Signs</div>
+                            </div>
+                            <div class="health-item health-risk">
+                                <div class="health-count">2</div>
+                                <div>Disease Risk</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel -->
+                <div class="right-panel">
+                    <!-- Live Camera -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">📹 Live Camera Feed</h2>
+                        </div>
+                        <div class="camera-container" onclick="openFullStream()">
+                            <div class="camera-thumbnail">📹</div>
+                            <div class="camera-overlay">
+                                <div>Greenhouse Zone A</div>
+                                <div style="font-size: 0.9rem; opacity: 0.8;">Click to view full stream</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Panel -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">🔔 Notifications</h2>
+                        </div>
+                        <div class="notifications-list">
+                            <div class="notification notification-warning">
+                                <span class="notification-icon">⚠️</span>
+                                <div>
+                                    <strong>Low Soil Moisture</strong><br>
+                                    Zone B requires watering
+                                </div>
+                                <span class="notification-time">5 min ago</span>
+                            </div>
+                            <div class="notification notification-info">
+                                <span class="notification-icon">💡</span>
+                                <div>
+                                    <strong>Light Schedule Active</strong><br>
+                                    LED grow lights turned on
+                                </div>
+                                <span class="notification-time">12 min ago</span>
+                            </div>
+                            <div class="notification notification-error">
+                                <span class="notification-icon">🚨</span>
+                                <div>
+                                    <strong>Temperature Alert</strong><br>
+                                    Zone C exceeds optimal range
+                                </div>
+                                <span class="notification-time">18 min ago</span>
+                            </div>
+                            <div class="notification notification-info">
+                                <span class="notification-icon">📊</span>
+                                <div>
+                                    <strong>Data Sync Complete</strong><br>
+                                    All sensors reporting normally
+                                </div>
+                                <span class="notification-time">1 hour ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel (hidden by default) -->
+    <div id="settings-panel" style="display:none; position:absolute; right:40px; top:70px; z-index:2000; width:400px; max-width:90vw;">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">⚙️ Settings</h2>
+            </div>
+            <div style="padding:1rem;">
+                <!-- Device Setup -->
+                <h3>Device Setup</h3>
+                <div>
+                    <label>Add Sensor: <input type="text" id="add-sensor-input" placeholder="Sensor Name"></label>
+                    <button onclick="addSensor()">Add</button>
+                </div>
+                <div>
+                    <label>Remove Sensor:
+                        <select id="remove-sensor-select"></select>
+                    </label>
+                    <button onclick="removeSensor()">Remove</button>
+                </div>
+                <hr>
+                <!-- Camera Integration -->
+                <h3>Camera Integration</h3>
+                <label>
+                    <input type="checkbox" id="camera-toggle" checked>
+                    Enable Camera
+                </label>
+                <div>
+                    <label>Snapshot Schedule:
+                        <select id="snapshot-schedule">
+                            <option value="5">Every 5 min</option>
+                            <option value="15">Every 15 min</option>
+                            <option value="30">Every 30 min</option>
+                            <option value="60">Every 1 hour</option>
+                        </select>
+                    </label>
+                </div>
+                <hr>
+                <!-- SCADA Connection -->
+                <h3>SCADA Connection</h3>
+                <label>SCADA Server IP: <input type="text" id="scada-ip" placeholder="192.168.1.100"></label>
+                <button onclick="connectSCADA()">Connect</button>
+                <span id="scada-status" style="margin-left:1rem; color:green;"></span>
+                <hr>
+                <!-- Language & Alert Preferences -->
+                <h3>Language & Alert Preferences</h3>
+                <label>
+                    Language:
+                    <select id="language-select">
+                        <option value="en">English</option>
+                        <option value="si">සිංහල</option>
+                        <option value="ta">தமிழ்</option>
+                    </select>
+                </label>
+                <div>
+                    <label>
+                        <input type="checkbox" id="alert-email" checked>
+                        Email Alerts
+                    </label>
+                    <label style="margin-left:1rem;">
+                        <input type="checkbox" id="alert-sms">
+                        SMS Alerts
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate real-time data updates
+        function updateSensorData() {
+            // Temperature (20-30°C)
+            const temp = (20 + Math.random() * 10).toFixed(1);
+            document.getElementById('temperature').textContent = temp + '°C';
+
+            // Humidity (50-80%)
+            const humidity = (50 + Math.random() * 30).toFixed(0);
+            document.getElementById('humidity').textContent = humidity + '%';
+
+            // Soil Moisture (30-70%)
+            const soilMoisture = (30 + Math.random() * 40).toFixed(0);
+            document.getElementById('soil-moisture').textContent = soilMoisture + '%';
+
+            // Water Level (60-95%)
+            const waterLevel = (60 + Math.random() * 35).toFixed(0);
+            document.getElementById('water-level').textContent = waterLevel + '%';
+
+            // SCADA Data
+            const phLevel = (6.0 + Math.random() * 2).toFixed(1);
+            document.getElementById('ph-level').textContent = phLevel;
+
+            const lightIntensity = (700 + Math.random() * 300).toFixed(0);
+            document.getElementById('light-intensity').textContent = lightIntensity;
+
+            const co2Level = (350 + Math.random() * 200).toFixed(0);
+            document.getElementById('co2-level').textContent = co2Level;
+
+            const airflow = (1.5 + Math.random() * 2).toFixed(1);
+            document.getElementById('airflow').textContent = airflow;
+        }
+
+        // Update data every 3 seconds
+        setInterval(updateSensorData, 3000);
+
+        // Initialize with first update
+        updateSensorData();
+
+        // Camera stream function
+        function openFullStream() {
+            alert('Opening full camera stream...\n\nThis would typically open a dedicated camera view or modal window with the live video feed.');
+        }
+
+        // Add click handlers for navigation
+         // Navigation functionality
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Only prevent default for non-existing pages
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                }
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                console.log('Navigating to:', this.textContent);
+            });
+        });
+
+        // Notification interactions
+        document.querySelectorAll('.notification').forEach(notification => {
+            notification.addEventListener('click', function() {
+                this.style.opacity = '0.6';
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                }, 200);
+            });
+        });
+
+        // Add some interactive hover effects
+        document.querySelectorAll('.climate-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05) rotate(1deg)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+
+        // Settings panel logic
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsPanel = document.getElementById('settings-panel');
+        let sensors = ['Temperature', 'Humidity', 'Soil Moisture'];
+
+        function updateSensorSelect() {
+            const select = document.getElementById('remove-sensor-select');
+            select.innerHTML = '';
+            sensors.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                select.appendChild(opt);
+            });
+        }
+        updateSensorSelect();
+
+        function addSensor() {
+            const input = document.getElementById('add-sensor-input');
+            if (input.value.trim()) {
+                sensors.push(input.value.trim());
+                updateSensorSelect();
+                alert('Sensor added: ' + input.value.trim());
+                input.value = '';
+            }
+        }
+        function removeSensor() {
+            const select = document.getElementById('remove-sensor-select');
+            if (select.value) {
+                sensors = sensors.filter(s => s !== select.value);
+                updateSensorSelect();
+                alert('Sensor removed: ' + select.value);
+            }
+        }
+        function connectSCADA() {
+            const ip = document.getElementById('scada-ip').value;
+            if (ip) {
+                document.getElementById('scada-status').textContent = 'Connected to ' + ip;
+                document.getElementById('scada-status').style.color = 'green';
+            } else {
+                document.getElementById('scada-status').textContent = 'Please enter IP';
+                document.getElementById('scada-status').style.color = 'red';
+            }
+        }
+
+        // Show/hide settings panel under the button
+        settingsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (settingsPanel.style.display === 'none') {
+                settingsPanel.style.display = 'block';
+                // Position panel under the button
+                const rect = settingsBtn.getBoundingClientRect();
+                settingsPanel.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+                settingsPanel.style.right = (window.innerWidth - rect.right - 10) + 'px';
+            } else {
+                settingsPanel.style.display = 'none';
+            }
+        });
+
+        // Hide panel if clicked outside
+        document.addEventListener('click', function(e) {
+            if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+                settingsPanel.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
