@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Greenhouse Control System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         * {
             margin: 0;
@@ -201,103 +202,177 @@
             color: #721c24;
         }
 
-        /* Plant Health */
-        .health-summary {
+        /* Enhanced Live Camera Styles */
+        .camera-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .camera-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .camera-header {
+            background-color: #2d5016;
+            color: white;
+            padding: 14px 18px;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1rem;
+            align-items: center;
         }
 
-        .health-item {
-            text-align: center;
-            flex: 1;
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 0 0.5rem;
+        .camera-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .health-healthy {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #155724;
+        .camera-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 999px;
         }
 
-        .health-warning {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            color: #856404;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4cff4c;
         }
 
-        .health-risk {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #721c24;
+        .camera-buttons {
+            display: flex;
+            gap: 12px;
         }
 
-        .health-count {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Live Camera */
-        .camera-container {
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
+        .camera-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .camera-container:hover {
-            transform: scale(1.02);
-        }
-
-        .camera-thumbnail {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(45deg, #4a7c59, #2d5016);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 3rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .camera-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .camera-feed-container {
+            position: relative;
+            width: 100%;
+            background-color: #000;
+        }
+
+        .camera-feed {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
         }
 
         .camera-overlay {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            bottom: 12px;
+            left: 12px;
+            background-color: rgba(0, 0, 0, 0.6);
             color: white;
-            padding: 1rem;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        /* Live Monitoring Widget */
-        .monitoring-widget {
-            background: #2d5016;
+        .camera-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background-color: #f9fafb;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn-primary {
+            background-color: #2d5016;
             color: white;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1rem;
         }
 
-        .monitoring-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
+        .action-btn-primary:hover {
+            background-color: #1b5e20;
         }
 
-        .monitor-item {
+        .action-btn-secondary {
+            background-color: #e5e7eb;
+            color: #2d5016;
+        }
+
+        .action-btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
             text-align: center;
-            padding: 0.8rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
         }
 
-        .monitor-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #90EE90;
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
         }
 
         /* Notifications */
@@ -386,15 +461,6 @@
             .climate-grid {
                 grid-template-columns: 1fr;
             }
-
-            .health-summary {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .health-item {
-                margin: 0;
-            }
         }
     </style>
 </head>
@@ -458,66 +524,55 @@
                                 <span class="climate-status status-good">Good</span>
                             </div>
                         </div>
-                        
-                        <!-- Live Monitoring Widget -->
-                        <div class="monitoring-widget">
-                            <h3>Live SCADA Data Stream <span class="live-indicator"></span></h3>
-                            <div class="monitoring-grid">
-                                <div class="monitor-item">
-                                    <div class="monitor-value" id="ph-level">6.8</div>
-                                    <div>pH Level</div>
-                                </div>
-                                <div class="monitor-item">
-                                    <div class="monitor-value" id="light-intensity">850</div>
-                                    <div>Light (lux)</div>
-                                </div>
-                                <div class="monitor-item">
-                                    <div class="monitor-value" id="co2-level">420</div>
-                                    <div>CO₂ (ppm)</div>
-                                </div>
-                                <div class="monitor-item">
-                                    <div class="monitor-value" id="airflow">2.3</div>
-                                    <div>Airflow (m/s)</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Plant Health Snapshot -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">🌿 Plant Health Snapshot</h2>
-                        </div>
-                        <div class="health-summary">
-                            <div class="health-item health-healthy">
-                                <div class="health-count">142</div>
-                                <div>Healthy Plants</div>
-                            </div>
-                            <div class="health-item health-warning">
-                                <div class="health-count">8</div>
-                                <div>Warning Signs</div>
-                            </div>
-                            <div class="health-item health-risk">
-                                <div class="health-count">2</div>
-                                <div>Disease Risk</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Right Panel -->
                 <div class="right-panel">
-                    <!-- Live Camera -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">📹 Live Camera Feed</h2>
-                        </div>
-                        <div class="camera-container" onclick="openFullStream()">
-                            <div class="camera-thumbnail">📹</div>
-                            <div class="camera-overlay">
-                                <div>Greenhouse Zone A</div>
-                                <div style="font-size: 0.9rem; opacity: 0.8;">Click to view full stream</div>
+                    <!-- Enhanced Live Camera -->
+                    <div class="camera-card">
+                        <div class="camera-header">
+                            <div class="camera-title">
+                                <i class="fas fa-video"></i>
+                                Main Camera
+                                <div class="camera-status">
+                                    <span class="status-dot"></span>
+                                    Live
+                                </div>
                             </div>
+                            <div class="camera-buttons">
+                                <button class="camera-btn tooltip" onclick="captureSnapshot('cameraFeed1')">
+                                    <i class="fas fa-camera"></i>
+                                    <span class="tooltiptext">Take Snapshot</span>
+                                </button>
+                                <button class="camera-btn tooltip" onclick="toggleFullscreen(document.getElementById('cameraFeed1'))">
+                                    <i class="fas fa-expand"></i>
+                                    <span class="tooltiptext">Fullscreen</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="camera-feed-container">
+                            <video id="cameraFeed1" class="camera-feed" autoplay playsinline></video>
+                            <div class="camera-overlay">
+                                <i class="fas fa-clock"></i>
+                                <span id="cameraTime">Live</span>
+                            </div>
+                        </div>
+                        <div class="camera-controls">
+                            <div class="control-group">
+                                <button class="action-btn action-btn-primary" onclick="showAction('Pan')">
+                                    <i class="fas fa-arrows-alt"></i>
+                                    Pan
+                                </button>
+                                <button class="action-btn action-btn-secondary" onclick="showAction('Zoom')">
+                                    <i class="fas fa-search-plus"></i>
+                                    Zoom
+                                </button>
+                            </div>
+                            <button class="action-btn action-btn-secondary" onclick="showAction('More Options')">
+                                <i class="fas fa-ellipsis-v"></i>
+                                More
+                            </button>
                         </div>
                     </div>
 
@@ -603,12 +658,6 @@
                     </label>
                 </div>
                 <hr>
-                <!-- SCADA Connection -->
-                <h3>SCADA Connection</h3>
-                <label>SCADA Server IP: <input type="text" id="scada-ip" placeholder="192.168.1.100"></label>
-                <button onclick="connectSCADA()">Connect</button>
-                <span id="scada-status" style="margin-left:1rem; color:green;"></span>
-                <hr>
                 <!-- Language & Alert Preferences -->
                 <h3>Language & Alert Preferences</h3>
                 <label>
@@ -634,48 +683,128 @@
     </div>
 
     <script>
-        // Simulate real-time data updates
+        // Replace with your ESP32's IP or hostname
+        const ESP32_API = 'http://esp32.local/sensors';
+
         function updateSensorData() {
-            // Temperature (20-30°C)
-            const temp = (20 + Math.random() * 10).toFixed(1);
-            document.getElementById('temperature').textContent = temp + '°C';
-
-            // Humidity (50-80%)
-            const humidity = (50 + Math.random() * 30).toFixed(0);
-            document.getElementById('humidity').textContent = humidity + '%';
-
-            // Soil Moisture (30-70%)
-            const soilMoisture = (30 + Math.random() * 40).toFixed(0);
-            document.getElementById('soil-moisture').textContent = soilMoisture + '%';
-
-            // Water Level (60-95%)
-            const waterLevel = (60 + Math.random() * 35).toFixed(0);
-            document.getElementById('water-level').textContent = waterLevel + '%';
-
-            // SCADA Data
-            const phLevel = (6.0 + Math.random() * 2).toFixed(1);
-            document.getElementById('ph-level').textContent = phLevel;
-
-            const lightIntensity = (700 + Math.random() * 300).toFixed(0);
-            document.getElementById('light-intensity').textContent = lightIntensity;
-
-            const co2Level = (350 + Math.random() * 200).toFixed(0);
-            document.getElementById('co2-level').textContent = co2Level;
-
-            const airflow = (1.5 + Math.random() * 2).toFixed(1);
-            document.getElementById('airflow').textContent = airflow;
+            fetch(ESP32_API)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('temperature').textContent = data.temperature + '°C';
+                    document.getElementById('humidity').textContent = data.humidity + '%';
+                    document.getElementById('soil-moisture').textContent = data.soil_moisture + '%';
+                    document.getElementById('water-level').textContent = data.water_level + '%';
+                    // Add other sensors as needed
+                })
+                .catch(() => {
+                    // Handle error or show offline status
+                });
         }
 
-        // Update data every 3 seconds
+        // Call every 3 seconds
         setInterval(updateSensorData, 3000);
-
-        // Initialize with first update
         updateSensorData();
 
-        // Camera stream function
-        function openFullStream() {
-            alert('Opening full camera stream...\n\nThis would typically open a dedicated camera view or modal window with the live video feed.');
+        // Access webcam for cameraFeed1
+        const videoElement = document.getElementById('cameraFeed1');
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then((stream) => {
+                videoElement.srcObject = stream;
+            })
+            .catch((error) => {
+                console.error('Error accessing webcam:', error);
+                // Fallback to show ESP32-CAM stream or placeholder
+                videoElement.outerHTML = '<img src="http://esp32.local/cam" alt="ESP32 Camera Feed" class="camera-feed">';
+            });
+
+        // Fullscreen toggle
+        function toggleFullscreen(element) {
+            if (!document.fullscreenElement) {
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.webkitRequestFullscreen) {
+                    element.webkitRequestFullscreen();
+                } else if (element.msRequestFullscreen) {
+                    element.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
         }
+
+        // Capture snapshot from video
+        function captureSnapshot(videoId) {
+            const video = document.getElementById(videoId);
+            const canvas = document.createElement('canvas');
+            
+            if (video.videoWidth && video.videoHeight) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+
+                const link = document.createElement('a');
+                link.download = 'greenhouse_snapshot_' + new Date().toISOString().replace(/:/g, '-') + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                showNotification('Snapshot saved');
+            } else {
+                showNotification('Cannot capture snapshot', 'error');
+            }
+        }
+
+        // Placeholder action handler
+        function showAction(action) {
+            showNotification(`${action} action initiated`);
+        }
+        
+        // Simple notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '12px 20px';
+            notification.style.borderRadius = '8px';
+            notification.style.fontSize = '14px';
+            notification.style.fontWeight = 'bold';
+            notification.style.zIndex = '9999';
+            notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            
+            if (type === 'success') {
+                notification.style.backgroundColor = '#4caf50';
+                notification.style.color = 'white';
+            } else {
+                notification.style.backgroundColor = '#f44336';
+                notification.style.color = 'white';
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
+        }
+        
+        // Update camera time
+        function updateCameraTime() {
+            const timeElement = document.getElementById('cameraTime');
+            const now = new Date();
+            timeElement.textContent = now.toLocaleTimeString();
+        }
+        
+        setInterval(updateCameraTime, 1000);
 
         // Add click handlers for navigation
          // Navigation functionality
@@ -749,16 +878,6 @@
                 sensors = sensors.filter(s => s !== select.value);
                 updateSensorSelect();
                 alert('Sensor removed: ' + select.value);
-            }
-        }
-        function connectSCADA() {
-            const ip = document.getElementById('scada-ip').value;
-            if (ip) {
-                document.getElementById('scada-status').textContent = 'Connected to ' + ip;
-                document.getElementById('scada-status').style.color = 'green';
-            } else {
-                document.getElementById('scada-status').textContent = 'Please enter IP';
-                document.getElementById('scada-status').style.color = 'red';
             }
         }
 
