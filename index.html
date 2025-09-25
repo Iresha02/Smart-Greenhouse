@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Greenhouse Control System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -87,7 +88,7 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1.2fr 1.8fr;
             gap: 2rem;
             margin-bottom: 2rem;
         }
@@ -121,7 +122,7 @@
 
         .card-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
@@ -137,34 +138,43 @@
             gap: 10px;
         }
 
-        /* Climate Data Dashboard */
+        /* Enhanced Climate Data Dashboard */
         .climate-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2rem;
         }
 
         .climate-item {
-            text-align: center;
-            padding: 1rem;
             background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
-            border-radius: 10px;
+            border-radius: 15px;
+            padding: 1.2rem;
             border: 2px solid #d4edda;
             transition: all 0.3s ease;
+            text-align: center;
         }
 
         .climate-item:hover {
             transform: scale(1.05);
             border-color: #4a7c59;
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.15);
         }
 
         .climate-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .gauge-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 0.8rem;
+            position: relative;
         }
 
         .climate-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #2d5016;
             margin-bottom: 0.3rem;
@@ -174,17 +184,18 @@
             color: #4a7c59;
             font-weight: 500;
             text-transform: uppercase;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             letter-spacing: 1px;
+            margin-bottom: 0.6rem;
         }
 
         .climate-status {
             display: inline-block;
             padding: 0.3rem 0.8rem;
             border-radius: 15px;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: bold;
-            margin-top: 0.5rem;
+            margin-bottom: 0.8rem;
         }
 
         .status-good {
@@ -202,148 +213,206 @@
             color: #721c24;
         }
 
-        /* Enhanced Live Camera Styles */
-        .camera-card {
+        /* Control Status */
+        .control-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.8rem;
+            padding: 0.6rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+
+        .control-label {
+            font-weight: 500;
+            color: #2d5016;
+            font-size: 0.8rem;
+        }
+
+        .control-indicator {
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .control-active {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .control-inactive {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        /* Stats Display */
+        .stats-mini {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.3rem;
+            margin-top: 0.8rem;
+        }
+
+        .stat-mini {
+            text-align: center;
+            padding: 0.4rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+        }
+
+        .stat-mini-value {
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #2c3e50;
+        }
+
+        .stat-mini-label {
+            font-size: 0.6rem;
+            color: #7f8c8d;
+        }
+
+        /* Enhanced Video Display Styles - MUCH BIGGER */
+        .video-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             border: 1px solid rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            min-height: 600px;
         }
 
-        .camera-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        .video-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
         }
 
-        .camera-header {
-            background-color: #2d5016;
+        .video-header {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
             color: white;
-            padding: 14px 18px;
+            padding: 18px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .camera-title {
-            font-size: 1.1rem;
+        .video-title {
+            font-size: 1.4rem;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .camera-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 4px 10px;
-            border-radius: 999px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #4cff4c;
-        }
-
-        .camera-buttons {
-            display: flex;
             gap: 12px;
         }
 
-        .camera-btn {
+        .video-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .video-btn {
             background: none;
             border: none;
             color: white;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        .camera-btn:hover {
+        .video-btn:hover {
             background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
         }
 
-        .camera-feed-container {
+        .video-container {
             position: relative;
             width: 100%;
             background-color: #000;
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
         }
 
-        .camera-feed {
+        .video-player {
             width: 100%;
-            height: 300px;
+            height: 500px;
             object-fit: cover;
             display: block;
+            border: none;
+            outline: none;
         }
 
-        .camera-overlay {
+        .video-overlay {
             position: absolute;
-            bottom: 12px;
-            left: 12px;
-            background-color: rgba(0, 0, 0, 0.6);
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(45, 80, 22, 0.8), rgba(74, 124, 89, 0.8));
             color: white;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.85rem;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .camera-controls {
+        .video-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 18px;
-            background-color: #f9fafb;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #f9fafb 0%, #f0f8f0 100%);
             border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .control-group {
             display: flex;
-            gap: 10px;
+            gap: 15px;
         }
 
         .action-btn {
-            padding: 8px 16px;
-            border-radius: 9999px;
+            padding: 12px 20px;
+            border-radius: 25px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
 
         .action-btn-primary {
-            background-color: #2d5016;
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(45, 80, 22, 0.3);
         }
 
         .action-btn-primary:hover {
-            background-color: #1b5e20;
+            background: linear-gradient(135deg, #1b5e20 0%, #2d5016 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 80, 22, 0.4);
         }
 
         .action-btn-secondary {
-            background-color: #e5e7eb;
+            background: linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%);
             color: #2d5016;
+            border: 1px solid #d1d5db;
         }
 
         .action-btn-secondary:hover {
-            background-color: #d1d5db;
+            background: linear-gradient(135deg, #d1d5db 0%, #e5e7eb 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .tooltip {
@@ -353,20 +422,20 @@
 
         .tooltip .tooltiptext {
             visibility: hidden;
-            width: 120px;
-            background-color: rgba(0, 0, 0, 0.8);
+            width: 140px;
+            background-color: rgba(0, 0, 0, 0.9);
             color: #fff;
             text-align: center;
-            border-radius: 6px;
-            padding: 5px;
+            border-radius: 8px;
+            padding: 8px;
             position: absolute;
             z-index: 1;
             bottom: 125%;
             left: 50%;
-            margin-left: -60px;
+            margin-left: -70px;
             opacity: 0;
             transition: opacity 0.3s;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: normal;
         }
 
@@ -430,6 +499,12 @@
             animation: pulse 2s infinite;
         }
 
+        /* Overview Chart */
+        .overview-chart {
+            height: 200px;
+            margin-top: 1rem;
+        }
+
         /* Responsive Design */
         @media (max-width: 1024px) {
             .dashboard-grid {
@@ -439,11 +514,15 @@
             .nav-links {
                 gap: 1rem;
             }
+
+            .video-player {
+                height: 400px;
+            }
         }
 
         @media (max-width: 768px) {
             .climate-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
             }
 
             .nav-links {
@@ -454,6 +533,10 @@
             .nav-links a {
                 padding: 0.3rem 0.8rem;
                 font-size: 0.9rem;
+            }
+
+            .video-player {
+                height: 300px;
             }
         }
 
@@ -490,98 +573,197 @@
             <div class="dashboard-grid">
                 <!-- Left Panel -->
                 <div class="left-panel">
-                    <!-- Real-time Climate Data -->
+                    <!-- Enhanced Real-time Climate Data -->
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">
-                                🌡️ Real-time Climate Data
+                                🌡️ Real-time Climate Monitoring
                                 <span class="live-indicator"></span>
                             </h2>
                         </div>
                         <div class="climate-grid">
+                            <!-- Temperature -->
                             <div class="climate-item">
                                 <div class="climate-icon">🌡️</div>
-                                <div class="climate-value" id="temperature">24.5°C</div>
+                                <div class="gauge-container">
+                                    <canvas id="tempGauge"></canvas>
+                                </div>
+                                <div class="climate-value" id="temperature">--°C</div>
                                 <div class="climate-label">Temperature</div>
-                                <span class="climate-status status-good">Optimal</span>
+                                <span class="climate-status status-good" id="temp-status">Optimal</span>
+                                <div class="control-status">
+                                    <span class="control-label">Fans:</span>
+                                    <span class="control-indicator control-inactive" id="fans">Off</span>
+                                </div>
+                                <div class="stats-mini">
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="temp-min">--</div>
+                                        <div class="stat-mini-label">Min</div>
+                                    </div>
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="temp-avg">--</div>
+                                        <div class="stat-mini-label">Avg</div>
+                                    </div>
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="temp-max">--</div>
+                                        <div class="stat-mini-label">Max</div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Humidity -->
                             <div class="climate-item">
                                 <div class="climate-icon">💧</div>
-                                <div class="climate-value" id="humidity">68%</div>
+                                <div class="gauge-container">
+                                    <canvas id="humidityGauge"></canvas>
+                                </div>
+                                <div class="climate-value" id="humidity">--%</div>
                                 <div class="climate-label">Humidity</div>
-                                <span class="climate-status status-good">Normal</span>
+                                <span class="climate-status status-good" id="humidity-status">Normal</span>
+                                <div class="control-status">
+                                    <span class="control-label">Door:</span>
+                                    <span class="control-indicator control-inactive" id="door">Closed</span>
+                                </div>
+                                <div class="stats-mini">
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="humidity-min">--</div>
+                                        <div class="stat-mini-label">Min</div>
+                                    </div>
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="humidity-avg">--</div>
+                                        <div class="stat-mini-label">Avg</div>
+                                    </div>
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="humidity-max">--</div>
+                                        <div class="stat-mini-label">Max</div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Soil Moisture -->
                             <div class="climate-item">
                                 <div class="climate-icon">🌱</div>
-                                <div class="climate-value" id="soil-moisture">45%</div>
+                                <div class="gauge-container">
+                                    <canvas id="soilMoistureGauge"></canvas>
+                                </div>
+                                <div class="climate-value" id="soilMoisture">--%</div>
                                 <div class="climate-label">Soil Moisture</div>
-                                <span class="climate-status status-warning">Low</span>
+                                <span class="climate-status status-warning" id="soil-status">Low</span>
+                                <div class="control-status">
+                                    <span class="control-label">Pump:</span>
+                                    <span class="control-indicator control-inactive" id="pump">Off</span>
+                                </div>
+                                <div class="stats-mini">
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="soil-min">--</div>
+                                        <div class="stat-mini-label">Min</div>
+                                    </div>
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="soil-avg">--</div>
+                                        <div class="stat-mini-label">Avg</div>
+                                    </div>
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="soil-max">--</div>
+                                        <div class="stat-mini-label">Max</div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Light Condition -->
                             <div class="climate-item">
-                                <div class="climate-icon">💦</div>
-                                <div class="climate-value" id="water-level">78%</div>
-                                <div class="climate-label">Water Level</div>
-                                <span class="climate-status status-good">Good</span>
+                                <div class="climate-icon">💡</div>
+                                <div class="gauge-container">
+                                    <canvas id="lightGauge"></canvas>
+                                </div>
+                                <div class="climate-value" id="lightCondition">-- lux</div>
+                                <div class="climate-label">Light Intensity</div>
+                                <span class="climate-status status-good" id="light-status">Good</span>
+                                <div class="control-status">
+                                    <span class="control-label">Lights:</span>
+                                    <span class="control-indicator control-inactive" id="lights">Off</span>
+                                </div>
+                                <div class="stats-mini">
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="light-min">--</div>
+                                        <div class="stat-mini-label">Min</div>
+                                    </div>
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="light-avg">--</div>
+                                        <div class="stat-mini-label">Avg</div>
+                                    </div>
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-value" id="light-max">--</div>
+                                        <div class="stat-mini-label">Max</div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- Overview Chart -->
+                        <div class="overview-chart">
+                            <canvas id="overviewChart"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Panel -->
+                <!-- Right Panel - VIDEO FIRST, THEN ALERTS -->
                 <div class="right-panel">
-                    <!-- Enhanced Live Camera -->
-                    <div class="camera-card">
-                        <div class="camera-header">
-                            <div class="camera-title">
-                                <i class="fas fa-video"></i>
-                                Main Camera
-                                <div class="camera-status">
-                                    <span class="status-dot"></span>
-                                    Live
-                                </div>
+                    <!-- Enhanced Bigger Video Display -->
+                    <div class="video-card">
+                        <div class="video-header">
+                            <div class="video-title">
+                                <i class="fas fa-play-circle"></i>
+                                Greenhouse Overview
                             </div>
-                            <div class="camera-buttons">
-                                <button class="camera-btn tooltip" onclick="captureSnapshot('cameraFeed1')">
-                                    <i class="fas fa-camera"></i>
-                                    <span class="tooltiptext">Take Snapshot</span>
+                            <div class="video-buttons">
+                                <button class="video-btn tooltip" onclick="openYouTube()">
+                                    <i class="fab fa-youtube"></i>
+                                    <span class="tooltiptext">Open on YouTube</span>
                                 </button>
-                                <button class="camera-btn tooltip" onclick="toggleFullscreen(document.getElementById('cameraFeed1'))">
+                                <button class="video-btn tooltip" onclick="toggleVideoFullscreen()">
                                     <i class="fas fa-expand"></i>
                                     <span class="tooltiptext">Fullscreen</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="camera-feed-container">
-                            <video id="cameraFeed1" class="camera-feed" autoplay playsinline></video>
-                            <div class="camera-overlay">
-                                <i class="fas fa-clock"></i>
-                                <span id="cameraTime">Live</span>
+                        <div class="video-container">
+                            <iframe 
+                                id="greenhouseVideo" 
+                                class="video-player" 
+                                src="https://www.youtube.com/embed/RrPka2YDCAo?autoplay=1&mute=1&loop=1&playlist=RrPka2YDCAo&controls=1&rel=0&modestbranding=1" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen>
+                            </iframe>
+                            <div class="video-overlay">
+                                <i class="fas fa-video"></i>
+                                <span id="videoTime">Greenhouse Tour - YouTube</span>
                             </div>
                         </div>
-                        <div class="camera-controls">
+                        <div class="video-controls">
                             <div class="control-group">
-                                <button class="action-btn action-btn-primary" onclick="showAction('Pan')">
-                                    <i class="fas fa-arrows-alt"></i>
-                                    Pan
+                                <button class="action-btn action-btn-primary" onclick="restartVideo()">
+                                    <i class="fas fa-redo"></i>
+                                    Reload
                                 </button>
-                                <button class="action-btn action-btn-secondary" onclick="showAction('Zoom')">
-                                    <i class="fas fa-search-plus"></i>
-                                    Zoom
+                                <button class="action-btn action-btn-secondary" onclick="toggleMute()">
+                                    <i class="fas fa-volume-up" id="muteIcon"></i>
+                                    <span id="muteText">YouTube Controls</span>
                                 </button>
                             </div>
-                            <button class="action-btn action-btn-secondary" onclick="showAction('More Options')">
-                                <i class="fas fa-ellipsis-v"></i>
-                                More
+                            <button class="action-btn action-btn-secondary" onclick="showVideoInfo()">
+                                <i class="fas fa-info-circle"></i>
+                                Info
                             </button>
                         </div>
                     </div>
 
-                    <!-- Notifications Panel -->
+                    <!-- System Alerts Panel - NOW UNDER VIDEO -->
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">🔔 Notifications</h2>
+                            <h2 class="card-title">🔔 System Alerts</h2>
                         </div>
-                        <div class="notifications-list">
+                        <div class="notifications-list" id="notifications-list">
                             <div class="notification notification-warning">
                                 <span class="notification-icon">⚠️</span>
                                 <div>
@@ -605,15 +787,7 @@
                                     Zone C exceeds optimal range
                                 </div>
                                 <span class="notification-time">18 min ago</span>
-                            </div>
-                            <div class="notification notification-info">
-                                <span class="notification-icon">📊</span>
-                                <div>
-                                    <strong>Data Sync Complete</strong><br>
-                                    All sensors reporting normally
-                                </div>
-                                <span class="notification-time">1 hour ago</span>
-                            </div>
+            </div>
                         </div>
                     </div>
                 </div>
@@ -621,14 +795,13 @@
         </div>
     </div>
 
-    <!-- Settings Panel (hidden by default) -->
+    <!-- Settings Panel -->
     <div id="settings-panel" style="display:none; position:absolute; right:40px; top:70px; z-index:2000; width:400px; max-width:90vw;">
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">⚙️ Settings</h2>
             </div>
             <div style="padding:1rem;">
-                <!-- Device Setup -->
                 <h3>Device Setup</h3>
                 <div>
                     <label>Add Sensor: <input type="text" id="add-sensor-input" placeholder="Sensor Name"></label>
@@ -641,24 +814,21 @@
                     <button onclick="removeSensor()">Remove</button>
                 </div>
                 <hr>
-                <!-- Camera Integration -->
-                <h3>Camera Integration</h3>
+                <h3>Video Settings</h3>
                 <label>
-                    <input type="checkbox" id="camera-toggle" checked>
-                    Enable Camera
+                    <input type="checkbox" id="autoplay-toggle" checked>
+                    Enable Autoplay
                 </label>
                 <div>
-                    <label>Snapshot Schedule:
-                        <select id="snapshot-schedule">
-                            <option value="5">Every 5 min</option>
-                            <option value="15">Every 15 min</option>
-                            <option value="30">Every 30 min</option>
-                            <option value="60">Every 1 hour</option>
+                    <label>Video Quality:
+                        <select id="video-quality">
+                            <option value="high">High (1080p)</option>
+                            <option value="medium">Medium (720p)</option>
+                            <option value="low">Low (480p)</option>
                         </select>
                     </label>
                 </div>
                 <hr>
-                <!-- Language & Alert Preferences -->
                 <h3>Language & Alert Preferences</h3>
                 <label>
                     Language:
@@ -682,50 +852,334 @@
         </div>
     </div>
 
-    <script>
-        // Replace with your ESP32's IP or hostname
-        const ESP32_API = 'http://esp32.local/sensors';
+    <script type="module">
+        // Firebase integration
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-        function updateSensorData() {
-            fetch(ESP32_API)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('temperature').textContent = data.temperature + '°C';
-                    document.getElementById('humidity').textContent = data.humidity + '%';
-                    document.getElementById('soil-moisture').textContent = data.soil_moisture + '%';
-                    document.getElementById('water-level').textContent = data.water_level + '%';
-                    // Add other sensors as needed
-                })
-                .catch(() => {
-                    // Handle error or show offline status
-                });
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSghoFd1RDhnZ_3s9VUsFzJblWDwLs41A",
+            authDomain: "smart-farming-82577.firebaseapp.com",
+            databaseURL: "https://smart-farming-82577-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "smart-farming-82577",
+            storageBucket: "smart-farming-82577.firebasestorage.app",
+            messagingSenderId: "904248604007",
+            appId: "1:904248604007:web:36e38dd012644b9f3eabc2",
+            measurementId: "G-G6Z7VBCME9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Historical data storage
+        const historyLength = 10;
+        const tempHistory = [];
+        const humidityHistory = [];
+        const soilMoistureHistory = [];
+        const lightHistory = [];
+        const timeLabels = [];
+
+        let alertCounts = {
+            temperature: 0,
+            humidity: 0,
+            soilMoisture: 0,
+            light: 0
+        };
+
+        // Initialize Gauges
+        const createGauge = (ctx, gradientColors, maxValue) => {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 100);
+            gradient.addColorStop(0, gradientColors[0]);
+            gradient.addColorStop(1, gradientColors[1]);
+            
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [0, maxValue],
+                        backgroundColor: [gradient, '#F0F0F0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    rotation: 270,
+                    circumference: 180,
+                    cutout: '80%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        };
+
+        // Initialize Overview Chart
+        const createOverviewChart = (ctx) => {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Temperature (°C)',
+                            data: [],
+                            borderColor: '#FF6384',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Humidity (%)',
+                            data: [],
+                            borderColor: '#36A2EB',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Soil Moisture (%)',
+                            data: [],
+                            borderColor: '#4BC0C0',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Light (lux/10)',
+                            data: [],
+                            borderColor: '#FFCE56',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        };
+
+        // Initialize gauges
+        const tempCtx = document.getElementById('tempGauge').getContext('2d');
+        const tempGauge = createGauge(tempCtx, ['#FF6384', '#FF0000'], 50);
+
+        const humidityCtx = document.getElementById('humidityGauge').getContext('2d');
+        const humidityGauge = createGauge(humidityCtx, ['#36A2EB', '#1E88E5'], 100);
+
+        const soilMoistureCtx = document.getElementById('soilMoistureGauge').getContext('2d');
+        const soilMoistureGauge = createGauge(soilMoistureCtx, ['#4BC0C0', '#009688'], 100);
+
+        const lightCtx = document.getElementById('lightGauge').getContext('2d');
+        const lightGauge = createGauge(lightCtx, ['#FFCE56', '#FF9800'], 1000);
+
+        const overviewChartCtx = document.getElementById('overviewChart').getContext('2d');
+        const overviewChart = createOverviewChart(overviewChartCtx);
+
+        function updateData(id, value, threshold, elementId, activeText, inactiveText, type) {
+            document.getElementById(id).textContent = value;
+            const element = document.getElementById(elementId);
+            const isActive = value > threshold;
+            
+            if (isActive) {
+                element.textContent = activeText;
+                element.className = 'control-indicator control-active';
+            } else {
+                element.textContent = inactiveText;
+                element.className = 'control-indicator control-inactive';
+            }
         }
 
-        // Call every 3 seconds
-        setInterval(updateSensorData, 3000);
-        updateSensorData();
+        function updateStatus(value, thresholds, statusId) {
+            const statusElement = document.getElementById(statusId);
+            if (value >= thresholds.good[0] && value <= thresholds.good[1]) {
+                statusElement.textContent = 'Optimal';
+                statusElement.className = 'climate-status status-good';
+            } else if (value >= thresholds.warning[0] && value <= thresholds.warning[1]) {
+                statusElement.textContent = 'Warning';
+                statusElement.className = 'climate-status status-warning';
+            } else {
+                statusElement.textContent = 'Critical';
+                statusElement.className = 'climate-status status-critical';
+            }
+        }
 
-        // Access webcam for cameraFeed1
-        const videoElement = document.getElementById('cameraFeed1');
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-            .then((stream) => {
-                videoElement.srcObject = stream;
-            })
-            .catch((error) => {
-                console.error('Error accessing webcam:', error);
-                // Fallback to show ESP32-CAM stream or placeholder
-                videoElement.outerHTML = '<img src="http://esp32.local/cam" alt="ESP32 Camera Feed" class="camera-feed">';
+        function updateHistoricalData(value, historyArray, minId, maxId, avgId) {
+            historyArray.push(value);
+            if (historyArray.length > historyLength) {
+                historyArray.shift();
+            }
+
+            if (historyArray.length > 0) {
+                const min = Math.min(...historyArray);
+                const max = Math.max(...historyArray);
+                const avg = historyArray.reduce((sum, val) => sum + val, 0) / historyArray.length;
+
+                document.getElementById(minId).textContent = min.toFixed(1);
+                document.getElementById(maxId).textContent = max.toFixed(1);
+                document.getElementById(avgId).textContent = avg.toFixed(1);
+            }
+
+            updateOverviewChart();
+        }
+
+        function updateOverviewChart() {
+            const now = new Date();
+            const timeString = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+            
+            if (timeLabels.length >= historyLength) {
+                timeLabels.shift();
+            }
+            timeLabels.push(timeString);
+
+            overviewChart.data.labels = [...timeLabels];
+            overviewChart.data.datasets[0].data = [...tempHistory];
+            overviewChart.data.datasets[1].data = [...humidityHistory];
+            overviewChart.data.datasets[2].data = [...soilMoistureHistory];
+            overviewChart.data.datasets[3].data = lightHistory.map(val => val / 10);
+            overviewChart.update();
+        }
+
+        // Firebase listeners
+        onValue(ref(database, "sensorData/temperature"), (snapshot) => {
+            if (snapshot.exists()) {
+                let temp = snapshot.val();
+                updateData("temperature", temp + '°C', 30, "fans", "On", "Off", "fan");
+                tempGauge.data.datasets[0].data = [temp, 50 - temp];
+                tempGauge.update();
+                updateStatus(temp, {good: [18, 28], warning: [15, 35], critical: [0, 50]}, 'temp-status');
+                updateHistoricalData(temp, tempHistory, 'temp-min', 'temp-max', 'temp-avg');
+            }
+        });
+
+        onValue(ref(database, "sensorData/humidity"), (snapshot) => {
+            if (snapshot.exists()) {
+                let humidity = snapshot.val();
+                updateData("humidity", humidity + '%', 70, "door", "Open", "Closed");
+                humidityGauge.data.datasets[0].data = [humidity, 100 - humidity];
+                humidityGauge.update();
+                updateStatus(humidity, {good: [40, 70], warning: [30, 80], critical: [0, 100]}, 'humidity-status');
+                updateHistoricalData(humidity, humidityHistory, 'humidity-min', 'humidity-max', 'humidity-avg');
+            }
+        });
+
+        onValue(ref(database, "sensorData/soilMoisture"), (snapshot) => {
+            if (snapshot.exists()) {
+                let moisture = snapshot.val();
+                updateData("soilMoisture", moisture + '%', 30, "pump", "On", "Off", "pump");
+                soilMoistureGauge.data.datasets[0].data = [moisture, 100 - moisture];
+                soilMoistureGauge.update();
+                updateStatus(moisture, {good: [40, 80], warning: [25, 90], critical: [0, 100]}, 'soil-status');
+                updateHistoricalData(moisture, soilMoistureHistory, 'soil-min', 'soil-max', 'soil-avg');
+            }
+        });
+
+        onValue(ref(database, "sensorData/lightLevel"), (snapshot) => {
+            if (snapshot.exists()) {
+                let light = snapshot.val();
+                updateData("lightCondition", light + ' lux', 300, "lights", "On", "Off");
+                lightGauge.data.datasets[0].data = [light, 1000 - light];
+                lightGauge.update();
+                updateStatus(light, {good: [300, 800], warning: [200, 1000], critical: [0, 1500]}, 'light-status');
+                updateHistoricalData(light, lightHistory, 'light-min', 'light-max', 'light-avg');
+            }
+        });
+
+        // Initialize with mock data if no Firebase data received
+        setTimeout(() => {
+            if (tempHistory.length === 0) {
+                // Generate mock data
+                for (let i = 0; i < 5; i++) {
+                    const temp = 20 + Math.random() * 10;
+                    const humidity = 50 + Math.random() * 30;
+                    const moisture = 30 + Math.random() * 40;
+                    const light = 300 + Math.random() * 500;
+
+                    tempHistory.push(temp);
+                    humidityHistory.push(humidity);
+                    soilMoistureHistory.push(moisture);
+                    lightHistory.push(light);
+                }
+
+                // Update displays
+                updateData("temperature", tempHistory[tempHistory.length-1].toFixed(1) + '°C', 30, "fans", "On", "Off");
+                tempGauge.data.datasets[0].data = [tempHistory[tempHistory.length-1], 50 - tempHistory[tempHistory.length-1]];
+                tempGauge.update();
+
+                updateData("humidity", humidityHistory[humidityHistory.length-1].toFixed(1) + '%', 70, "door", "Open", "Closed");
+                humidityGauge.data.datasets[0].data = [humidityHistory[humidityHistory.length-1], 100 - humidityHistory[humidityHistory.length-1]];
+                humidityGauge.update();
+
+                updateData("soilMoisture", soilMoistureHistory[soilMoistureHistory.length-1].toFixed(1) + '%', 30, "pump", "On", "Off");
+                soilMoistureGauge.data.datasets[0].data = [soilMoistureHistory[soilMoistureHistory.length-1], 100 - soilMoistureHistory[soilMoistureHistory.length-1]];
+                soilMoistureGauge.update();
+
+                updateData("lightCondition", lightHistory[lightHistory.length-1].toFixed(0) + ' lux', 300, "lights", "On", "Off");
+                lightGauge.data.datasets[0].data = [lightHistory[lightHistory.length-1], 1000 - lightHistory[lightHistory.length-1]];
+                lightGauge.update();
+
+                // Update statistics
+                updateHistoricalData(tempHistory[tempHistory.length-1], tempHistory, 'temp-min', 'temp-max', 'temp-avg');
+                updateHistoricalData(humidityHistory[humidityHistory.length-1], humidityHistory, 'humidity-min', 'humidity-max', 'humidity-avg');
+                updateHistoricalData(soilMoistureHistory[soilMoistureHistory.length-1], soilMoistureHistory, 'soil-min', 'soil-max', 'soil-avg');
+                updateHistoricalData(lightHistory[lightHistory.length-1], lightHistory, 'light-min', 'light-max', 'light-avg');
+
+                // Update status indicators
+                updateStatus(tempHistory[tempHistory.length-1], {good: [18, 28], warning: [15, 35], critical: [0, 50]}, 'temp-status');
+                updateStatus(humidityHistory[humidityHistory.length-1], {good: [40, 70], warning: [30, 80], critical: [0, 100]}, 'humidity-status');
+                updateStatus(soilMoistureHistory[soilMoistureHistory.length-1], {good: [40, 80], warning: [25, 90], critical: [0, 100]}, 'soil-status');
+                updateStatus(lightHistory[lightHistory.length-1], {good: [300, 800], warning: [200, 1000], critical: [0, 1500]}, 'light-status');
+            }
+        }, 3000);
+
+        // Video functionality
+        const video = document.getElementById('greenhouseVideo');
+        
+        // Auto-start video when page loads
+        window.addEventListener('load', () => {
+            video.play().catch(e => {
+                console.log('Autoplay prevented:', e);
+                // Fallback for browsers that block autoplay
+                document.addEventListener('click', () => {
+                    video.play();
+                }, { once: true });
             });
+        });
 
-        // Fullscreen toggle
-        function toggleFullscreen(element) {
+        // Video control functions - Updated for YouTube
+        window.openYouTube = function() {
+            window.open('https://youtu.be/RrPka2YDCAo', '_blank');
+            showNotification('Opening video on YouTube');
+        };
+
+        window.toggleVideoFullscreen = function() {
+            const iframe = document.getElementById('greenhouseVideo');
             if (!document.fullscreenElement) {
-                if (element.requestFullscreen) {
-                    element.requestFullscreen();
-                } else if (element.webkitRequestFullscreen) {
-                    element.webkitRequestFullscreen();
-                } else if (element.msRequestFullscreen) {
-                    element.msRequestFullscreen();
+                if (iframe.requestFullscreen) {
+                    iframe.requestFullscreen();
+                } else if (iframe.webkitRequestFullscreen) {
+                    iframe.webkitRequestFullscreen();
+                } else if (iframe.msRequestFullscreen) {
+                    iframe.msRequestFullscreen();
                 }
             } else {
                 if (document.exitFullscreen) {
@@ -736,117 +1190,23 @@
                     document.msExitFullscreen();
                 }
             }
-        }
+        };
 
-        // Capture snapshot from video
-        function captureSnapshot(videoId) {
-            const video = document.getElementById(videoId);
-            const canvas = document.createElement('canvas');
-            
-            if (video.videoWidth && video.videoHeight) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
+        window.restartVideo = function() {
+            const iframe = document.getElementById('greenhouseVideo');
+            iframe.src = iframe.src;
+            showNotification('Video reloaded');
+        };
 
-                const link = document.createElement('a');
-                link.download = 'greenhouse_snapshot_' + new Date().toISOString().replace(/:/g, '-') + '.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                
-                showNotification('Snapshot saved');
-            } else {
-                showNotification('Cannot capture snapshot', 'error');
-            }
-        }
+        window.toggleMute = function() {
+            showNotification('Use YouTube player controls for audio settings');
+        };
 
-        // Placeholder action handler
-        function showAction(action) {
-            showNotification(`${action} action initiated`);
-        }
-        
-        // Simple notification system
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.textContent = message;
-            notification.style.position = 'fixed';
-            notification.style.bottom = '20px';
-            notification.style.right = '20px';
-            notification.style.padding = '12px 20px';
-            notification.style.borderRadius = '8px';
-            notification.style.fontSize = '14px';
-            notification.style.fontWeight = 'bold';
-            notification.style.zIndex = '9999';
-            notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-            
-            if (type === 'success') {
-                notification.style.backgroundColor = '#4caf50';
-                notification.style.color = 'white';
-            } else {
-                notification.style.backgroundColor = '#f44336';
-                notification.style.color = 'white';
-            }
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transition = 'opacity 0.5s ease';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 500);
-            }, 3000);
-        }
-        
-        // Update camera time
-        function updateCameraTime() {
-            const timeElement = document.getElementById('cameraTime');
-            const now = new Date();
-            timeElement.textContent = now.toLocaleTimeString();
-        }
-        
-        setInterval(updateCameraTime, 1000);
+        window.showVideoInfo = function() {
+            alert(`Video Information:\nSource: YouTube\nURL: https://youtu.be/RrPka2YDCAo\nAutoplay: Enabled\nLoop: Enabled\nControls: Available\n\nUse the YouTube player controls for play/pause, volume, and quality settings.`);
+        };
 
-        // Add click handlers for navigation
-         // Navigation functionality
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Only prevent default for non-existing pages
-                if (this.getAttribute('href') === '#') {
-                    e.preventDefault();
-                }
-                
-                // Remove active class from all links
-                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-                
-                // Add active class to clicked link
-                this.classList.add('active');
-                
-                console.log('Navigating to:', this.textContent);
-            });
-        });
-
-        // Notification interactions
-        document.querySelectorAll('.notification').forEach(notification => {
-            notification.addEventListener('click', function() {
-                this.style.opacity = '0.6';
-                setTimeout(() => {
-                    this.style.opacity = '1';
-                }, 200);
-            });
-        });
-
-        // Add some interactive hover effects
-        document.querySelectorAll('.climate-item').forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                this.style.transform = 'scale(1.05) rotate(1deg)';
-            });
-            
-            item.addEventListener('mouseleave', function() {
-                this.style.transform = 'scale(1) rotate(0deg)';
-            });
-        });
-
-        // Settings panel logic
+        // Settings functionality
         const settingsBtn = document.getElementById('settings-btn');
         const settingsPanel = document.getElementById('settings-panel');
         let sensors = ['Temperature', 'Humidity', 'Soil Moisture'];
@@ -863,30 +1223,29 @@
         }
         updateSensorSelect();
 
-        function addSensor() {
+        window.addSensor = function() {
             const input = document.getElementById('add-sensor-input');
             if (input.value.trim()) {
                 sensors.push(input.value.trim());
                 updateSensorSelect();
-                alert('Sensor added: ' + input.value.trim());
+                showNotification('Sensor added: ' + input.value.trim());
                 input.value = '';
             }
-        }
-        function removeSensor() {
+        };
+
+        window.removeSensor = function() {
             const select = document.getElementById('remove-sensor-select');
             if (select.value) {
                 sensors = sensors.filter(s => s !== select.value);
                 updateSensorSelect();
-                alert('Sensor removed: ' + select.value);
+                showNotification('Sensor removed: ' + select.value, 'warning');
             }
-        }
+        };
 
-        // Show/hide settings panel under the button
         settingsBtn.addEventListener('click', function(e) {
             e.preventDefault();
             if (settingsPanel.style.display === 'none') {
                 settingsPanel.style.display = 'block';
-                // Position panel under the button
                 const rect = settingsBtn.getBoundingClientRect();
                 settingsPanel.style.top = (rect.bottom + window.scrollY + 10) + 'px';
                 settingsPanel.style.right = (window.innerWidth - rect.right - 10) + 'px';
@@ -895,12 +1254,60 @@
             }
         });
 
-        // Hide panel if clicked outside
         document.addEventListener('click', function(e) {
             if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
                 settingsPanel.style.display = 'none';
             }
         });
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '12px 20px';
+            notification.style.borderRadius = '8px';
+            notification.style.fontSize = '14px';
+            notification.style.fontWeight = 'bold';
+            notification.style.zIndex = '9999';
+            notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            
+            if (type === 'success') {
+                notification.style.backgroundColor = '#4caf50';
+                notification.style.color = 'white';
+            } else if (type === 'warning') {
+                notification.style.backgroundColor = '#ff9800';
+                notification.style.color = 'white';
+            } else {
+                notification.style.backgroundColor = '#f44336';
+                notification.style.color = 'white';
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 500);
+            }, 3000);
+        }
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                }
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
     </script>
 </body>
 </html>
